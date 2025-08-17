@@ -76,14 +76,14 @@ app.get('/api/questions/:subjectCode', async (req, res) => {
       difficulty: row.difficulty
     }));
 
-    res.json({
+    return res.json({
       success: true,
       data: questions
     });
 
   } catch (error) {
     console.error('Error fetching questions:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch questions'
     });
@@ -111,7 +111,7 @@ app.post('/api/sessions/create', async (req, res) => {
 
     const sessionId = sessionResult.rows[0].id;
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         sessionId,
@@ -123,7 +123,7 @@ app.post('/api/sessions/create', async (req, res) => {
 
   } catch (error) {
     console.error('Error creating session:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to create session'
     });
@@ -164,7 +164,7 @@ app.post('/api/sessions/answer', async (req, res) => {
       VALUES ($1, $2, $3, $4, $5)
     `, [sessionId, questionId, chosenOption.toUpperCase(), isCorrect, timeSpentMs]);
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         isCorrect,
@@ -176,7 +176,7 @@ app.post('/api/sessions/answer', async (req, res) => {
 
   } catch (error) {
     console.error('Error submitting answer:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to submit answer'
     });
