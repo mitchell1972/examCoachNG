@@ -1,0 +1,42 @@
+Based on the logs you provided, there are two main problems occurring simultaneously.
+
+The most critical issue is that your Node.js backend application is unable to connect to its PostgreSQL database. The second issue is that a web server is missing a file requested by a client.
+
+1. Database Connection Failure (Critical) 🚨
+Your "ExamCoach" backend, running on port 3000, is repeatedly failing to perform database operations.
+
+Log Evidence:
+
+Error fetching questions: Error: Connection terminated due to connection timeout
+...
+[cause]: Error: Connection terminated unexpectedly
+and
+
+Error creating session: Error: Connection terminated due to connection timeout
+What it means: The application cannot establish or maintain a stable connection with your PostgreSQL database. Any part of your app that needs to read from or write to the database, like fetching exam questions or creating a user session, is failing.
+
+Common Causes & Solutions:
+
+Incorrect Credentials: Double-check the database host, port, username, and password in your .env file. A typo is a very common cause.
+
+Database is Down/Not Reachable: Ensure the PostgreSQL database server is actually running and accessible from where your application is hosted.
+
+Firewall Rules: A firewall on the application server or the database server might be blocking the connection on the PostgreSQL port (usually 5432).
+
+Connection Timeout Settings: The database might be configured to close idle connections too quickly. You may need to adjust the connection pool settings in your Node.js application (using pg-pool) to handle this, for example by setting an idleTimeoutMillis.
+
+2. Missing File (404 Not Found) 📄
+Your simple Python web server, running on port 5000, cannot find a specific JavaScript file that a client is requesting.
+
+Log Evidence:
+
+172.31.87.226 - - [17/Aug/2025 23:14:11] "GET /flutter_service_worker.js?v=684233009 HTTP/1.1" 404 -
+What it means: A client at IP address 172.31.87.226 is trying to download flutter_service_worker.js, but your server doesn't have this file in the directory it's serving from. This file is standard for Flutter web applications and is used to enable features like offline support and faster loading (Progressive Web App capabilities).
+
+Common Causes & Solutions:
+
+File Not in Web Root: The flutter_service_worker.js file was likely generated when you built your Flutter web app but was not placed in the same directory as your index.html and other files being served by the Python server.
+
+Incorrect Build Process: Your Flutter web build process might not be configured to generate the service worker file. Ensure your build command (flutter build web) completes successfully.
+
+Solution: Locate the flutter_service_worker.js file in your Flutter project's build directory (build/web) and move it to the root directory where your Python server is serving files from.
