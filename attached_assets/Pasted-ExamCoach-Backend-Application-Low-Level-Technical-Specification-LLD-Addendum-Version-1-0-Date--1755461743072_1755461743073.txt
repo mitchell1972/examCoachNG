@@ -1,0 +1,1398 @@
+ExamCoach Backend Application — Low-Level Technical Specification (LLD) Addendum
+Version: 1.0
+Date: 17 Aug 2025
+Purpose: Backend service for JAMB CBT preparation app with actual JAMB questions
+1. JAMB Subject Configuration
+typescript// config/subjects.ts
+export const JAMB_SUBJECTS = {
+  // Compulsory
+  USE_OF_ENGLISH: {
+    code: 'ENG',
+    name: 'Use of English',
+    questionCount: 60,
+    duration: 60, // minutes
+    sections: [
+      'Comprehension Passages',
+      'Antonyms and Synonyms',
+      'Sentence Completion',
+      'Oral English',
+      'Lexis and Structure'
+    ]
+  },
+  
+  // Sciences
+  MATHEMATICS: {
+    code: 'MTH',
+    name: 'Mathematics',
+    questionCount: 40,
+    duration: 60,
+    sections: [
+      'Number and Numeration',
+      'Algebra',
+      'Geometry/Trigonometry',
+      'Calculus',
+      'Statistics'
+    ]
+  },
+  PHYSICS: {
+    code: 'PHY',
+    name: 'Physics',
+    questionCount: 40,
+    duration: 60,
+    sections: [
+      'Mechanics',
+      'Thermal Physics',
+      'Waves and Optics',
+      'Electricity and Magnetism',
+      'Modern Physics'
+    ]
+  },
+  CHEMISTRY: {
+    code: 'CHM',
+    name: 'Chemistry',
+    questionCount: 40,
+    duration: 60,
+    sections: [
+      'Physical Chemistry',
+      'Inorganic Chemistry',
+      'Organic Chemistry',
+      'Environmental Chemistry',
+      'Analytical Chemistry'
+    ]
+  },
+  BIOLOGY: {
+    code: 'BIO',
+    name: 'Biology',
+    questionCount: 40,
+    duration: 60,
+    sections: [
+      'Cell Biology',
+      'Plant Biology',
+      'Animal Biology',
+      'Ecology',
+      'Genetics and Evolution'
+    ]
+  },
+  
+  // Commercial
+  ECONOMICS: {
+    code: 'ECO',
+    name: 'Economics',
+    questionCount: 40,
+    duration: 60,
+    sections: [
+      'Basic Economic Concepts',
+      'Microeconomics',
+      'Macroeconomics',
+      'International Trade',
+      'Economic Development'
+    ]
+  },
+  ACCOUNTING: {
+    code: 'ACC',
+    name: 'Accounting',
+    questionCount: 40,
+    duration: 60,
+    sections: [
+      'Financial Accounting',
+      'Cost Accounting',
+      'Management Accounting',
+      'Government Accounting',
+      'Auditing'
+    ]
+  },
+  COMMERCE: {
+    code: 'COM',
+    name: 'Commerce',
+    questionCount: 40,
+    duration: 60,
+    sections: [
+      'Trade',
+      'Business Organizations',
+      'Finance',
+      'Marketing',
+      'Business Communication'
+    ]
+  },
+  
+  // Arts
+  LITERATURE: {
+    code: 'LIT',
+    name: 'Literature in English',
+    questionCount: 40,
+    duration: 60,
+    sections: [
+      'African Prose',
+      'Non-African Prose',
+      'African Drama',
+      'Non-African Drama',
+      'Poetry'
+    ]
+  },
+  GOVERNMENT: {
+    code: 'GOV',
+    name: 'Government',
+    questionCount: 40,
+    duration: 60,
+    sections: [
+      'Political Theory',
+      'Nigerian Government',
+      'International Relations',
+      'Public Administration',
+      'Political Parties'
+    ]
+  },
+  CRK: {
+    code: 'CRK',
+    name: 'Christian Religious Knowledge',
+    questionCount: 40,
+    duration: 60,
+    sections: [
+      'Old Testament',
+      'New Testament',
+      'Life of Christ',
+      'Apostolic Age',
+      'Christian Living'
+    ]
+  },
+  HISTORY: {
+    code: 'HIS',
+    name: 'History',
+    questionCount: 40,
+    duration: 60,
+    sections: [
+      'Nigerian History Pre-1800',
+      'Nigerian History 1800-1960',
+      'Nigerian History Post-1960',
+      'African History',
+      'World History'
+    ]
+  },
+  GEOGRAPHY: {
+    code: 'GEO',
+    name: 'Geography',
+    questionCount: 40,
+    duration: 60,
+    sections: [
+      'Physical Geography',
+      'Human Geography',
+      'Regional Geography',
+      'Map Reading',
+      'GIS and Remote Sensing'
+    ]
+  }
+};
+2. Database Schema (PostgreSQL)
+sql-- Core Tables
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Users
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  phone VARCHAR(20) UNIQUE NOT NULL,
+  name VARCHAR(100),
+  email VARCHAR(100),
+  selected_subjects TEXT[], -- Array of subject codes
+  created_at TIMESTAMP DEFAULT NOW(),
+  last_active TIMESTAMP DEFAULT NOW()
+);
+
+-- JAMB Question Bank
+CREATE TABLE questions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  subject_code VARCHAR(3) NOT NULL,
+  section VARCHAR(100) NOT NULL,
+  year INTEGER, -- JAMB year (e.g., 2024)
+  question_number INTEGER, -- Original JAMB question number
+  stem TEXT NOT NULL,
+  option_a TEXT NOT NULL,
+  option_b TEXT NOT NULL,
+  option_c TEXT NOT NULL,
+  option_d TEXT NOT NULL,
+  option_e TEXT, -- Some JAMB questions have 5 options
+  correct_option CHAR(1) NOT NULL,
+  explanation TEXT,
+  difficulty INTEGER DEFAULT 2 CHECK (difficulty BETWEEN 1 AND 5),
+  image_url TEXT, -- For diagrams/graphs
+  syllabus_topic VARCHAR(200),
+  tags TEXT[], -- Additional categorization
+  verified BOOLEAN DEFAULT FALSE, -- Admin verified
+  source VARCHAR(50) DEFAULT 'JAMB', -- JAMB, WAEC, etc.
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  
+  INDEX idx_subject_section (subject_code, section),
+  INDEX idx_year_subject (year, subject_code),
+  INDEX idx_difficulty (difficulty)
+);
+
+-- Question Media (for complex questions with multiple images)
+CREATE TABLE question_media (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  question_id UUID REFERENCES questions(id) ON DELETE CASCADE,
+  media_type VARCHAR(20), -- image, audio
+  media_url TEXT NOT NULL,
+  caption TEXT,
+  position INTEGER DEFAULT 0
+);
+
+-- Comprehension Passages (for Use of English)
+CREATE TABLE passages (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title VARCHAR(200),
+  content TEXT NOT NULL,
+  author VARCHAR(100),
+  source VARCHAR(200),
+  year INTEGER,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Link passages to questions
+CREATE TABLE passage_questions (
+  passage_id UUID REFERENCES passages(id) ON DELETE CASCADE,
+  question_id UUID REFERENCES questions(id) ON DELETE CASCADE,
+  question_order INTEGER,
+  PRIMARY KEY (passage_id, question_id)
+);
+
+-- Question Packs (downloadable bundles)
+CREATE TABLE packs (
+  id VARCHAR(100) PRIMARY KEY,
+  subject_code VARCHAR(3) NOT NULL,
+  topic VARCHAR(200),
+  version INTEGER NOT NULL,
+  size_bytes INTEGER,
+  checksum VARCHAR(100),
+  question_count INTEGER,
+  min_app_version VARCHAR(20),
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT NOW(),
+  
+  UNIQUE(subject_code, topic, version)
+);
+
+-- Pack Questions (which questions are in each pack)
+CREATE TABLE pack_questions (
+  pack_id VARCHAR(100) REFERENCES packs(id),
+  question_id UUID REFERENCES questions(id),
+  sequence_number INTEGER,
+  PRIMARY KEY (pack_id, question_id)
+);
+
+-- Sessions
+CREATE TABLE sessions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  mode VARCHAR(20) NOT NULL, -- practice, mock, topic
+  subject_code VARCHAR(3) NOT NULL,
+  topic VARCHAR(200),
+  question_count INTEGER,
+  time_limit INTEGER, -- minutes
+  started_at TIMESTAMP DEFAULT NOW(),
+  ended_at TIMESTAMP,
+  score INTEGER,
+  status VARCHAR(20) DEFAULT 'active', -- active, paused, completed, abandoned
+  metadata JSONB
+);
+
+-- Session Questions (what questions were selected)
+CREATE TABLE session_questions (
+  session_id UUID REFERENCES sessions(id) ON DELETE CASCADE,
+  question_id UUID REFERENCES questions(id),
+  question_order INTEGER,
+  PRIMARY KEY (session_id, question_id)
+);
+
+-- Attempts
+CREATE TABLE attempts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  session_id UUID REFERENCES sessions(id),
+  question_id UUID REFERENCES questions(id),
+  user_id UUID REFERENCES users(id),
+  chosen_option CHAR(1),
+  is_correct BOOLEAN,
+  time_spent_ms INTEGER,
+  flagged BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT NOW(),
+  
+  INDEX idx_user_question (user_id, question_id)
+);
+
+-- Analytics & Performance Tracking
+CREATE TABLE user_performance (
+  user_id UUID REFERENCES users(id),
+  subject_code VARCHAR(3),
+  topic VARCHAR(200),
+  total_attempts INTEGER DEFAULT 0,
+  correct_attempts INTEGER DEFAULT 0,
+  accuracy DECIMAL(5,2),
+  average_time_ms INTEGER,
+  mastery_level INTEGER DEFAULT 1, -- 1-5
+  weak_areas TEXT[],
+  last_updated TIMESTAMP DEFAULT NOW(),
+  PRIMARY KEY (user_id, subject_code, topic)
+);
+
+-- Subscriptions/Entitlements
+CREATE TABLE subscriptions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  plan_type VARCHAR(50), -- free, monthly, termly, yearly
+  status VARCHAR(20), -- active, expired, cancelled
+  started_at TIMESTAMP NOT NULL,
+  expires_at TIMESTAMP NOT NULL,
+  payment_provider VARCHAR(50), -- paystack, flutterwave, apple_iap
+  payment_reference VARCHAR(200),
+  amount_paid DECIMAL(10,2),
+  currency VARCHAR(3) DEFAULT 'NGN',
+  metadata JSONB,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- AI Generated Questions (for validation)
+CREATE TABLE ai_questions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  subject_code VARCHAR(3),
+  section VARCHAR(100),
+  stem TEXT NOT NULL,
+  options JSONB NOT NULL,
+  correct_option CHAR(1),
+  explanation TEXT,
+  difficulty INTEGER,
+  generation_prompt TEXT,
+  model_version VARCHAR(50),
+  validation_status VARCHAR(20), -- pending, approved, rejected
+  validated_by UUID REFERENCES users(id),
+  validation_notes TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Admin/Tutor Accounts
+CREATE TABLE admins (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  email VARCHAR(100) UNIQUE NOT NULL,
+  password_hash VARCHAR(200) NOT NULL,
+  role VARCHAR(50), -- super_admin, content_admin, tutor
+  permissions JSONB,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Audit Log
+CREATE TABLE audit_log (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  admin_id UUID REFERENCES admins(id),
+  action VARCHAR(100),
+  entity_type VARCHAR(50),
+  entity_id UUID,
+  changes JSONB,
+  ip_address INET,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+3. Backend Service Architecture
+typescript// server/src/app.ts
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import rateLimit from 'express-rate-limit';
+import { Pool } from 'pg';
+import Redis from 'ioredis';
+import { BullQueue } from 'bull';
+import Sentry from '@sentry/node';
+
+// Project structure
+server/
+├── src/
+│   ├── app.ts
+│   ├── config/
+│   │   ├── database.ts
+│   │   ├── redis.ts
+│   │   ├── subjects.ts
+│   │   └── environment.ts
+│   ├── controllers/
+│   │   ├── auth.controller.ts
+│   │   ├── questions.controller.ts
+│   │   ├── sessions.controller.ts
+│   │   ├── packs.controller.ts
+│   │   ├── payments.controller.ts
+│   │   └── analytics.controller.ts
+│   ├── services/
+│   │   ├── question.service.ts
+│   │   ├── ai.service.ts
+│   │   ├── pack.service.ts
+│   │   ├── session.service.ts
+│   │   ├── payment.service.ts
+│   │   └── notification.service.ts
+│   ├── repositories/
+│   │   ├── question.repository.ts
+│   │   ├── user.repository.ts
+│   │   └── session.repository.ts
+│   ├── middleware/
+│   │   ├── auth.middleware.ts
+│   │   ├── subscription.middleware.ts
+│   │   └── validation.middleware.ts
+│   ├── queues/
+│   │   ├── pack.queue.ts
+│   │   ├── analytics.queue.ts
+│   │   └── notification.queue.ts
+│   ├── utils/
+│   │   ├── question-selector.ts
+│   │   ├── difficulty-calculator.ts
+│   │   └── bloom-filter.ts
+│   └── types/
+│       └── index.ts
+├── scripts/
+│   ├── import-jamb-questions.ts
+│   ├── generate-packs.ts
+│   └── migrate.ts
+├── data/
+│   └── jamb-questions/
+│       ├── 2015-2024/
+│       └── syllabus/
+└── package.json
+4. Question Management Service
+typescript// services/question.service.ts
+import { Pool } from 'pg';
+import { Redis } from 'ioredis';
+import { BloomFilter } from '../utils/bloom-filter';
+
+export class QuestionService {
+  private seenQuestions: Map<string, BloomFilter> = new Map();
+  
+  async getQuestionsForSession(
+    userId: string,
+    subject: string,
+    topic?: string,
+    count: number = 40,
+    mode: 'practice' | 'mock' = 'practice'
+  ): Promise<Question[]> {
+    // Get user's performance data
+    const performance = await this.getUserPerformance(userId, subject);
+    
+    // Calculate difficulty distribution based on user level
+    const difficultyDistribution = this.calculateDifficultyDistribution(
+      performance.masteryLevel,
+      mode
+    );
+    
+    // Get user's seen questions (last 90 days)
+    const bloomFilter = await this.getUserBloomFilter(userId, subject);
+    
+    // Build query based on mode
+    let query = `
+      SELECT q.* FROM questions q
+      WHERE q.subject_code = $1
+      AND q.verified = true
+    `;
+    
+    const params: any[] = [subject];
+    
+    if (topic) {
+      query += ` AND q.section = $2`;
+      params.push(topic);
+    }
+    
+    if (mode === 'mock') {
+      // For mock exams, use JAMB distribution
+      query += ` AND q.year >= 2020`; // Recent questions
+    }
+    
+    // Get pool of questions
+    const pool = await this.db.query(query, params);
+    
+    // Filter out recently seen questions
+    const unseenQuestions = pool.rows.filter(
+      q => !bloomFilter.has(q.id)
+    );
+    
+    // Select questions based on difficulty distribution
+    const selected = this.selectByDifficulty(
+      unseenQuestions,
+      difficultyDistribution,
+      count
+    );
+    
+    // Add to bloom filter
+    selected.forEach(q => bloomFilter.add(q.id));
+    await this.saveBloomFilter(userId, subject, bloomFilter);
+    
+    // For comprehension passages, group questions
+    if (subject === 'ENG' && mode === 'mock') {
+      return this.organizeWithPassages(selected);
+    }
+    
+    return selected;
+  }
+  
+  private calculateDifficultyDistribution(
+    masteryLevel: number,
+    mode: string
+  ): DifficultyDistribution {
+    if (mode === 'mock') {
+      // JAMB-like distribution
+      return {
+        1: 0.15, // Easy
+        2: 0.35, // Medium-Easy
+        3: 0.30, // Medium
+        4: 0.15, // Medium-Hard
+        5: 0.05  // Hard
+      };
+    }
+    
+    // Adaptive distribution for practice
+    if (masteryLevel <= 2) {
+      return { 1: 0.40, 2: 0.40, 3: 0.20, 4: 0, 5: 0 };
+    } else if (masteryLevel === 3) {
+      return { 1: 0.20, 2: 0.30, 3: 0.30, 4: 0.20, 5: 0 };
+    } else {
+      return { 1: 0.10, 2: 0.20, 3: 0.30, 4: 0.30, 5: 0.10 };
+    }
+  }
+  
+  private async organizeWithPassages(questions: Question[]): Promise<Question[]> {
+    // For English, ensure proper passage grouping
+    const comprehensionQuestions = questions.filter(q => 
+      q.section === 'Comprehension Passages'
+    );
+    
+    if (comprehensionQuestions.length > 0) {
+      // Get associated passages
+      const passageIds = await this.db.query(`
+        SELECT DISTINCT passage_id 
+        FROM passage_questions 
+        WHERE question_id = ANY($1)
+      `, [comprehensionQuestions.map(q => q.id)]);
+      
+      // Group questions by passage
+      // Ensure 15-20 comprehension questions from 3-4 passages
+      // ... implementation
+    }
+    
+    return questions;
+  }
+}
+5. Pack Generation System
+typescript// services/pack.service.ts
+import archiver from 'archiver';
+import crypto from 'crypto';
+import { S3 } from 'aws-sdk';
+
+export class PackService {
+  async generatePack(
+    subject: string,
+    topic: string,
+    version: number
+  ): Promise<Pack> {
+    // Get questions for pack
+    const questions = await this.db.query(`
+      SELECT q.*, 
+             array_agg(DISTINCT qm.media_url) as media_urls
+      FROM questions q
+      LEFT JOIN question_media qm ON q.id = qm.question_id
+      WHERE q.subject_code = $1 
+      AND q.section = $2
+      AND q.verified = true
+      GROUP BY q.id
+      LIMIT 200
+    `, [subject, topic]);
+    
+    // Create pack structure
+    const packData = {
+      id: `${subject}-${topic.replace(/\s+/g, '-')}-v${version}`,
+      subject,
+      topic,
+      version,
+      items: questions.rows.map(this.formatQuestion),
+      metadata: {
+        created_at: new Date(),
+        question_count: questions.rows.length,
+        difficulty_range: [1, 5],
+        years_covered: this.getYearRange(questions.rows)
+      }
+    };
+    
+    // Create archive
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    const chunks: Buffer[] = [];
+    
+    archive.on('data', chunk => chunks.push(chunk));
+    
+    // Add pack.json
+    archive.append(JSON.stringify(packData, null, 2), { 
+      name: 'pack.json' 
+    });
+    
+    // Add media files
+    const mediaUrls = new Set<string>();
+    questions.rows.forEach(q => {
+      if (q.media_urls) {
+        q.media_urls.forEach((url: string) => mediaUrls.add(url));
+      }
+    });
+    
+    for (const url of mediaUrls) {
+      const mediaBuffer = await this.downloadMedia(url);
+      const filename = path.basename(url);
+      archive.append(mediaBuffer, { 
+        name: `media/${filename}` 
+      });
+    }
+    
+    await archive.finalize();
+    
+    const buffer = Buffer.concat(chunks);
+    const checksum = crypto
+      .createHash('sha256')
+      .update(buffer)
+      .digest('hex');
+    
+    // Upload to S3/CDN
+    const uploadResult = await this.uploadToStorage(
+      `packs/${packData.id}.zip`,
+      buffer
+    );
+    
+    // Save to database
+    await this.db.query(`
+      INSERT INTO packs (id, subject_code, topic, version, size_bytes, checksum)
+      VALUES ($1, $2, $3, $4, $5, $6)
+    `, [packData.id, subject, topic, version, buffer.length, checksum]);
+    
+    return {
+      id: packData.id,
+      url: uploadResult.Location,
+      size_bytes: buffer.length,
+      checksum
+    };
+  }
+  
+  async getManifest(subject?: string, sinceVersion?: number) {
+    let query = `
+      SELECT * FROM packs 
+      WHERE is_active = true
+    `;
+    const params: any[] = [];
+    
+    if (subject) {
+      params.push(subject);
+      query += ` AND subject_code = $${params.length}`;
+    }
+    
+    if (sinceVersion) {
+      params.push(sinceVersion);
+      query += ` AND version > $${params.length}`;
+    }
+    
+    query += ` ORDER BY subject_code, topic, version DESC`;
+    
+    const packs = await this.db.query(query, params);
+    return { packs: packs.rows };
+  }
+}
+6. AI Question Generation & Validation
+typescript// services/ai.service.ts
+import OpenAI from 'openai';
+import { z } from 'zod';
+
+const QuestionSchema = z.object({
+  stem: z.string(),
+  options: z.object({
+    A: z.string(),
+    B: z.string(),
+    C: z.string(),
+    D: z.string(),
+    E: z.string().optional()
+  }),
+  correct: z.enum(['A', 'B', 'C', 'D', 'E']),
+  explanation: z.string(),
+  difficulty: z.number().min(1).max(5)
+});
+
+export class AIService {
+  private openai: OpenAI;
+  
+  async generateQuestions(
+    subject: string,
+    topic: string,
+    count: number = 10,
+    syllabus: string
+  ): Promise<AIQuestion[]> {
+    const prompt = this.buildPrompt(subject, topic, syllabus);
+    
+    const completion = await this.openai.chat.completions.create({
+      model: "gpt-4-turbo",
+      messages: [
+        {
+          role: "system",
+          content: `You are a JAMB exam expert. Generate authentic JAMB-style questions 
+                   following the exact format and difficulty of real JAMB CBT exams.
+                   Focus on the ${subject} syllabus for ${topic}.`
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+      response_format: { type: "json_object" }
+    });
+    
+    const response = JSON.parse(completion.choices[0].message.content);
+    const questions = response.questions;
+    
+    // Validate each question
+    const validated = await Promise.all(
+      questions.map(q => this.validateQuestion(q, subject))
+    );
+    
+    // Store in AI questions table for review
+    const stored = await this.storeAIQuestions(validated, subject, topic);
+    
+    return stored;
+  }
+  
+  private async validateQuestion(
+    question: any,
+    subject: string
+  ): Promise<ValidatedQuestion> {
+    try {
+      // Schema validation
+      const parsed = QuestionSchema.parse(question);
+      
+      // Content validation
+      const validations = await Promise.all([
+        this.checkDuplicate(parsed.stem),
+        this.checkDifficulty(parsed, subject),
+        this.verifyCorrectAnswer(parsed),
+        this.checkDistractorQuality(parsed)
+      ]);
+      
+      return {
+        ...parsed,
+        validationScore: validations.reduce((a, b) => a + b, 0) / validations.length,
+        validationNotes: this.getValidationNotes(validations)
+      };
+    } catch (error) {
+      throw new Error(`Validation failed: ${error.message}`);
+    }
+  }
+  
+  private async checkDuplicate(stem: string): Promise<number> {
+    // Use embeddings to find similar questions
+    const embedding = await this.getEmbedding(stem);
+    
+    const similar = await this.db.query(`
+      SELECT stem, 1 - (embedding <=> $1) as similarity
+      FROM questions
+      WHERE 1 - (embedding <=> $1) > 0.9
+      LIMIT 1
+    `, [embedding]);
+    
+    return similar.rows.length === 0 ? 1.0 : 0.0;
+  }
+  
+  private buildPrompt(subject: string, topic: string, syllabus: string): string {
+    return `
+    Generate ${10} JAMB ${subject} questions on ${topic}.
+    
+    Syllabus excerpt:
+    ${syllabus}
+    
+    Requirements:
+    1. Follow exact JAMB question format
+    2. Include mix of difficulty levels (1-5)
+    3. Ensure distractors are plausible but clearly wrong
+    4. Provide detailed explanations
+    5. Cover different aspects of the topic
+    
+    Output as JSON:
+    {
+      "questions": [
+        {
+          "stem": "question text",
+          "options": {
+            "A": "option text",
+            "B": "option text",
+            "C": "option text",
+            "D": "option text"
+          },
+          "correct": "A",
+          "explanation": "detailed explanation",
+          "difficulty": 3
+        }
+      ]
+    }
+    `;
+  }
+}
+7. Session Management & Adaptive Learning
+typescript// services/session.service.ts
+export class SessionService {
+  async createSession(
+    userId: string,
+    mode: 'practice' | 'mock' | 'topic',
+    subject: string,
+    options: SessionOptions
+  ): Promise<Session> {
+    // Determine question count and time
+    const config = this.getSessionConfig(mode, subject, options);
+    
+    // Get questions using adaptive algorithm
+    const questions = await this.questionService.getQuestionsForSession(
+      userId,
+      subject,
+      options.topic,
+      config.questionCount,
+      mode
+    );
+    
+    // Create session record
+    const session = await this.db.query(`
+      INSERT INTO sessions 
+      (user_id, mode, subject_code, topic, question_count, time_limit, status)
+      VALUES ($1, $2, $3, $4, $5, $6, 'active')
+      RETURNING *
+    `, [userId, mode, subject, options.topic, config.questionCount, config.timeLimit]);
+    
+    // Link questions to session
+    await this.linkQuestionsToSession(session.rows[0].id, questions);
+    
+    // Initialize session cache
+    await this.redis.setex(
+      `session:${session.rows[0].id}`,
+      3600 * 24, // 24 hours
+      JSON.stringify({
+        ...session.rows[0],
+        questions: questions.map(q => ({
+          id: q.id,
+          answered: false,
+          flagged: false
+        }))
+      })
+    );
+    
+    return {
+      sessionId: session.rows[0].id,
+      questions: mode === 'mock' ? 
+        questions.map(q => this.sanitizeQuestion(q)) : 
+        questions
+    };
+  }
+  
+  async submitAttempt(
+    sessionId: string,
+    questionId: string,
+    answer: string,
+    timeSpent: number
+  ): Promise<AttemptResult> {
+    // Get correct answer
+    const question = await this.questionService.getById(questionId);
+    const isCorrect = answer === question.correct_option;
+    
+    // Store attempt
+    const attempt = await this.db.query(`
+      INSERT INTO attempts
+      (session_id, question_id, user_id, chosen_option, is_correct, time_spent_ms)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *
+    `, [sessionId, questionId, userId, answer, isCorrect, timeSpent]);
+    
+    // Update session cache
+    await this.updateSessionCache(sessionId, questionId, {
+      answered: true,
+      chosen: answer,
+      correct: isCorrect
+    });
+    
+    // Update performance metrics
+    await this.updatePerformanceMetrics(userId, question, isCorrect, timeSpent);
+    
+    return {
+      correct: isCorrect,
+      correctAnswer: question.correct_option,
+      explanation: question.explanation
+    };
+  }
+  
+  private async updatePerformanceMetrics(
+    userId: string,
+    question: Question,
+    isCorrect: boolean,
+    timeSpent: number
+  ): Promise<void> {
+    // Update user performance
+    await this.db.query(`
+      INSERT INTO user_performance 
+      (user_id, subject_code, topic, total_attempts, correct_attempts, average_time_ms)
+      VALUES ($1, $2, $3, 1, $4, $5)
+      ON CONFLICT (user_id, subject_code, topic)
+      DO UPDATE SET
+        total_attempts = user_performance.total_attempts + 1,
+        correct_attempts = user_performance.correct_attempts + $4,
+        average_time_ms = (
+          user_performance.average_time_ms * user_performance.total_attempts + $5
+        ) / (user_performance.total_attempts + 1),
+        accuracy = (user_performance.correct_attempts + $4) * 100.0 / 
+                   (user_performance.total_attempts + 1),
+        last_updated = NOW()
+    `, [userId, question.subject_code, question.section, isCorrect ? 1 : 0, timeSpent]);
+    
+    // Calculate mastery level
+    await this.calculateMasteryLevel(userId, question.subject_code, question.section);
+  }
+  
+  private async calculateMasteryLevel(
+    userId: string,
+    subject: string,
+    topic: string
+  ): Promise<void> {
+    const perf = await this.db.query(`
+      SELECT * FROM user_performance
+      WHERE user_id = $1 AND subject_code = $2 AND topic = $3
+    `, [userId, subject, topic]);
+    
+    if (perf.rows.length > 0) {
+      const { accuracy, total_attempts, average_time_ms } = perf.rows[0];
+      
+      let masteryLevel = 1;
+      if (total_attempts >= 20) {
+        if (accuracy >= 80 && average_time_ms < 60000) masteryLevel = 5;
+        else if (accuracy >= 70) masteryLevel = 4;
+        else if (accuracy >= 60) masteryLevel = 3;
+        else if (accuracy >= 50) masteryLevel = 2;
+      }
+      
+      await this.db.query(`
+        UPDATE user_performance
+        SET mastery_level = $1
+        WHERE user_id = $2 AND subject_code = $3 AND topic = $4
+      `, [masteryLevel, userId, subject, topic]);
+    }
+  }
+}
+8. Payment Integration
+typescript// services/payment.service.ts
+import axios from 'axios';
+import crypto from 'crypto';
+
+export class PaymentService {
+  // Paystack Integration
+  async initializePaystackPayment(
+    userId: string,
+    plan: string,
+    amount: number
+  ): Promise<PaymentInitResponse> {
+    const user = await this.userRepo.findById(userId);
+    const reference = this.generateReference();
+    
+    const response = await axios.post(
+      'https://api.paystack.co/transaction/initialize',
+      {
+        email: user.email || `${user.phone}@examcoach.ng`,
+        amount: amount * 100, // Convert to kobo
+        reference,
+        callback_url: `${process.env.BASE_URL}/payments/verify`,
+        metadata: {
+          user_id: userId,
+          plan,
+          custom_fields: [
+            {
+              display_name: "Phone",
+              variable_name: "phone",
+              value: user.phone
+            }
+          ]
+        }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`
+        }
+      }
+    );
+    
+    // Store pending transaction
+    await this.db.query(`
+      INSERT INTO payment_transactions
+      (reference, user_id, amount, plan, status, provider)
+      VALUES ($1, $2, $3, $4, 'pending', 'paystack')
+    `, [reference, userId, amount, plan]);
+    
+    return {
+      authorization_url: response.data.data.authorization_url,
+      reference
+    };
+  }
+  
+  // Webhook handler
+  async handlePaystackWebhook(payload: any, signature: string): Promise<void> {
+    // Verify webhook signature
+    const hash = crypto
+      .createHmac('sha512', process.env.PAYSTACK_SECRET_KEY)
+      .update(JSON.stringify(payload))
+      .digest('hex');
+    
+    if (hash !== signature) {
+      throw new Error('Invalid webhook signature');
+    }
+    
+    if (payload.event === 'charge.success') {
+      const { reference, metadata } = payload.data;
+      
+      // Update transaction
+      await this.db.query(`
+        UPDATE payment_transactions
+        SET status = 'success', completed_at = NOW()
+        WHERE reference = $1
+      `, [reference]);
+      
+      // Grant subscription
+      await this.grantSubscription(
+        metadata.user_id,
+        metadata.plan,
+        'paystack',
+        reference
+      );
+      
+      // Send confirmation
+      await this.notificationService.sendPaymentSuccess(
+        metadata.user_id,
+        metadata.plan
+      );
+    }
+  }
+  
+  // Apple IAP Verification
+  async verifyAppleReceipt(
+    userId: string,
+    receiptData: string
+  ): Promise<SubscriptionStatus> {
+    const response = await axios.post(
+      process.env.APPLE_VERIFY_URL,
+      {
+        'receipt-data': receiptData,
+        'password': process.env.APPLE_SHARED_SECRET
+      }
+    );
+    
+    if (response.data.status === 0) {
+      const latestReceipt = response.data.latest_receipt_info[0];
+      const productId = latestReceipt.product_id;
+      const expiresDate = new Date(parseInt(latestReceipt.expires_date_ms));
+      
+      // Map Apple product to our plan
+      const plan = this.mapAppleProductToPlan(productId);
+      
+      // Grant subscription
+      await this.grantSubscription(
+        userId,
+        plan,
+        'apple_iap',
+        latestReceipt.transaction_id,
+        expiresDate
+      );
+      
+      return {
+        active: true,
+        plan,
+        expiresAt: expiresDate
+      };
+    }
+    
+    throw new Error('Invalid receipt');
+  }
+  
+  private async grantSubscription(
+    userId: string,
+    plan: string,
+    provider: string,
+    reference: string,
+    expiresAt?: Date
+  ): Promise<void> {
+    const duration = this.getPlanDuration(plan);
+    const expires = expiresAt || new Date(Date.now() + duration);
+    
+    await this.db.query(`
+      INSERT INTO subscriptions
+      (user_id, plan_type, status, started_at, expires_at, payment_provider, payment_reference)
+      VALUES ($1, $2, 'active', NOW(), $3, $4, $5)
+      ON CONFLICT (user_id) 
+      DO UPDATE SET
+        plan_type = $2,
+        status = 'active',
+        expires_at = $3,
+        payment_provider = $4,
+        payment_reference = $5
+    `, [userId, plan, expires, provider, reference]);
+  }
+}
+9. Analytics & Reporting
+typescript// services/analytics.service.ts
+export class AnalyticsService {
+  async getUserAnalytics(userId: string): Promise<UserAnalytics> {
+    const [
+      performance,
+      sessions,
+      streaks,
+      comparisons
+    ] = await Promise.all([
+      this.getPerformanceMetrics(userId),
+      this.getSessionHistory(userId),
+      this.getStudyStreaks(userId),
+      this.getPeerComparisons(userId)
+    ]);
+    
+    return {
+      performance,
+      sessions,
+      streaks,
+      comparisons,
+      recommendations: await this.generateRecommendations(userId, performance)
+    };
+  }
+  
+  private async getPerformanceMetrics(userId: string) {
+    const metrics = await this.db.query(`
+      SELECT 
+        subject_code,
+        AVG(accuracy) as avg_accuracy,
+        SUM(total_attempts) as total_questions,
+        SUM(correct_attempts) as correct_answers,
+        AVG(average_time_ms) / 1000 as avg_time_seconds,
+        array_agg(
+          json_build_object(
+            'topic', topic,
+            'accuracy', accuracy,
+            'mastery', mastery_level
+          ) ORDER BY accuracy ASC
+        ) as topic_breakdown
+      FROM user_performance
+      WHERE user_id = $1
+      GROUP BY subject_code
+    `, [userId]);
+    
+    return metrics.rows.map(row => ({
+      ...row,
+      weak_topics: row.topic_breakdown.slice(0, 3),
+      strong_topics: row.topic_breakdown.slice(-3).reverse()
+    }));
+  }
+  
+  private async generateRecommendations(
+    userId: string,
+    performance: any
+  ): Promise<Recommendation[]> {
+    const recommendations = [];
+    
+    // Analyze weak areas
+    for (const subject of performance) {
+      if (subject.avg_accuracy < 50) {
+        recommendations.push({
+          type: 'practice',
+          priority: 'high',
+          subject: subject.subject_code,
+          topics: subject.weak_topics.map(t => t.topic),
+          message: `Focus on ${subject.weak_topics[0].topic} in ${subject.subject_code}`,
+          action: {
+            type: 'start_practice',
+            params: {
+              subject: subject.subject_code,
+              topic: subject.weak_topics[0].topic,
+              difficulty: 'easy'
+            }
+          }
+        });
+      }
+    }
+    
+    // Time management
+    const slowSubjects = performance.filter(s => s.avg_time_seconds > 90);
+    if (slowSubjects.length > 0) {
+      recommendations.push({
+        type: 'speed',
+        priority: 'medium',
+        message: 'Practice timed sessions to improve speed',
+        action: {
+          type: 'start_mock',
+          params: { timed: true }
+        }
+      });
+    }
+    
+    return recommendations;
+  }
+}
+10. Admin Dashboard API
+typescript// controllers/admin.controller.ts
+export class AdminController {
+  // Question management
+  async reviewAIQuestion(req: Request, res: Response) {
+    const { questionId, status, notes } = req.body;
+    const adminId = req.admin.id;
+    
+    await this.db.query(`
+      UPDATE ai_questions
+      SET validation_status = $1,
+          validation_notes = $2,
+          validated_by = $3,
+          validated_at = NOW()
+      WHERE id = $4
+    `, [status, notes, adminId, questionId]);
+    
+    if (status === 'approved') {
+      // Move to main question bank
+      await this.moveToQuestionBank(questionId);
+    }
+    
+    // Log action
+    await this.auditLog(adminId, 'review_question', questionId, { status, notes });
+    
+    res.json({ success: true });
+  }
+  
+  // Bulk import JAMB questions
+  async bulkImportQuestions(req: Request, res: Response) {
+    const { file } = req;
+    const { year, subject } = req.body;
+    
+    const questions = await this.parseJAMBFile(file);
+    
+    const results = await this.db.query(`
+      INSERT INTO questions 
+      (subject_code, year, question_number, stem, option_a, option_b, option_c, option_d, correct_option, explanation, section, difficulty)
+      SELECT * FROM UNNEST($1::question_type[])
+      ON CONFLICT (subject_code, year, question_number) 
+      DO UPDATE SET
+        stem = EXCLUDED.stem,
+        updated_at = NOW()
+      RETURNING id
+    `, [questions]);
+    
+    res.json({
+      imported: results.rowCount,
+      year,
+      subject
+    });
+  }
+  
+  // Analytics dashboard
+  async getDashboardStats(req: Request, res: Response) {
+    const stats = await this.db.query(`
+      SELECT
+        (SELECT COUNT(*) FROM users WHERE created_at > NOW() - INTERVAL '30 days') as new_users,
+        (SELECT COUNT(*) FROM users WHERE last_active > NOW() - INTERVAL '7 days') as active_users,
+        (SELECT COUNT(*) FROM subscriptions WHERE status = 'active') as paid_users,
+        (SELECT COUNT(*) FROM questions WHERE verified = true) as total_questions,
+        (SELECT COUNT(*) FROM sessions WHERE started_at > NOW() - INTERVAL '24 hours') as daily_sessions,
+        (SELECT AVG(score) FROM sessions WHERE mode = 'mock' AND ended_at IS NOT NULL) as avg_mock_score
+    `);
+    
+    res.json(stats.rows[0]);
+  }
+}
+11. Deployment Configuration (Replit)
+yaml# .replit
+run = "npm run start"
+entrypoint = "server/src/app.ts"
+
+[env]
+NODE_ENV = "production"
+PORT = "3000"
+
+[nix]
+channel = "stable-22_11"
+
+[deployment]
+run = ["npm", "run", "start"]
+deploymentTarget = "cloudrun"
+
+# replit.nix
+{ pkgs }: {
+  deps = [
+    pkgs.nodejs-18_x
+    pkgs.postgresql_14
+    pkgs.redis
+    pkgs.nodePackages.typescript
+    pkgs.nodePackages.pm2
+  ];
+}
+12. Environment Variables
+bash# .env.example
+# Database
+DATABASE_URL=postgresql://user:pass@localhost/examcoach
+REDIS_URL=redis://localhost:6379
+
+# Auth
+JWT_SECRET=your-secret-key
+OTP_SECRET=otp-secret
+
+# Payments
+PAYSTACK_SECRET_KEY=sk_test_xxx
+PAYSTACK_PUBLIC_KEY=pk_test_xxx
+FLUTTERWAVE_SECRET_KEY=FLWSECK_TEST-xxx
+APPLE_SHARED_SECRET=xxx
+APPLE_VERIFY_URL=https://sandbox.itunes.apple.com/verifyReceipt
+
+# AI
+OPENAI_API_KEY=sk-xxx
+ANTHROPIC_API_KEY=xxx
+
+# Storage
+AWS_ACCESS_KEY_ID=xxx
+AWS_SECRET_ACCESS_KEY=xxx
+S3_BUCKET=examcoach-packs
+CDN_URL=https://cdn.examcoach.ng
+
+# Push Notifications
+FCM_SERVER_KEY=xxx
+APNS_KEY_ID=xxx
+APNS_TEAM_ID=xxx
+
+# SMS (Termii)
+TERMII_API_KEY=xxx
+TERMII_SENDER_ID=ExamCoach
+
+# Monitoring
+SENTRY_DSN=https://xxx@sentry.io/xxx
+13. API Documentation
+yaml# openapi.yaml excerpt
+paths:
+  /questions/subjects/{subject}/practice:
+    post:
+      summary: Start practice session
+      parameters:
+        - name: subject
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [ENG, MTH, PHY, CHM, BIO, ECO, ACC, COM, LIT, GOV, CRK, HIS, GEO]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                topic:
+                  type: string
+                count:
+                  type: integer
+                  default: 20
+                difficulty:
+                  type: string
+                  enum: [adaptive, easy, medium, hard]
+      responses:
+        200:
+          description: Practice session created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionId:
+                    type: string
+                  questions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Question'
+This backend specification provides a complete JAMB-focused exam preparation system with actual question management, adaptive learning, and comprehensive analytics. The system is designed to scale and integrate seamlessly with the mobile app while being deployable on Replit.

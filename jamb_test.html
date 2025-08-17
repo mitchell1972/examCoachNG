@@ -170,26 +170,89 @@
     </div>
 
     <div id="homeScreen">
-        <div class="subject-grid">
-            <div class="subject-card math" onclick="startQuiz('Mathematics')">
-                <div class="icon">📊</div>
-                <h3>Mathematics</h3>
-                <p>Algebra, Geometry, Statistics</p>
+        <h2 style="text-align: center; margin: 30px 0; color: #333;">Choose Your JAMB Subject</h2>
+        
+        <div style="margin-bottom: 30px;">
+            <h3 style="text-align: center; color: #2196F3; margin-bottom: 15px;">🎯 Compulsory Subject</h3>
+            <div class="subject-grid" style="max-width: 300px; margin: 0 auto;">
+                <div class="subject-card english" onclick="startQuiz('Use of English')">
+                    <div class="icon">📝</div>
+                    <h3>Use of English</h3>
+                    <p>60 Questions • 60 Minutes</p>
+                </div>
             </div>
-            <div class="subject-card english" onclick="startQuiz('English')">
-                <div class="icon">📚</div>
-                <h3>English Language</h3>
-                <p>Grammar, Comprehension, Literature</p>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <h3 style="text-align: center; color: #4CAF50; margin-bottom: 15px;">🔬 Science Subjects</h3>
+            <div class="subject-grid">
+                <div class="subject-card math" onclick="startQuiz('Mathematics')">
+                    <div class="icon">📊</div>
+                    <h3>Mathematics</h3>
+                    <p>Algebra, Geometry, Calculus</p>
+                </div>
+                <div class="subject-card physics" onclick="startQuiz('Physics')">
+                    <div class="icon">⚡</div>
+                    <h3>Physics</h3>
+                    <p>Mechanics, Waves, Electricity</p>
+                </div>
+                <div class="subject-card chemistry" onclick="startQuiz('Chemistry')">
+                    <div class="icon">🧪</div>
+                    <h3>Chemistry</h3>
+                    <p>Organic, Inorganic, Physical</p>
+                </div>
+                <div class="subject-card" style="border-color: #8BC34A;" onclick="startQuiz('Biology')">
+                    <div class="icon">🌱</div>
+                    <h3>Biology</h3>
+                    <p>Cell Biology, Ecology, Genetics</p>
+                </div>
             </div>
-            <div class="subject-card physics" onclick="startQuiz('Physics')">
-                <div class="icon">🔬</div>
-                <h3>Physics</h3>
-                <p>Mechanics, Waves, Electricity</p>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <h3 style="text-align: center; color: #FF9800; margin-bottom: 15px;">💼 Commercial Subjects</h3>
+            <div class="subject-grid">
+                <div class="subject-card" style="border-color: #FF9800;" onclick="startQuiz('Economics')">
+                    <div class="icon">📈</div>
+                    <h3>Economics</h3>
+                    <p>Micro, Macro, Development</p>
+                </div>
+                <div class="subject-card" style="border-color: #FF9800;" onclick="startQuiz('Accounting')">
+                    <div class="icon">💰</div>
+                    <h3>Accounting</h3>
+                    <p>Financial, Cost, Management</p>
+                </div>
+                <div class="subject-card" style="border-color: #FF9800;" onclick="startQuiz('Commerce')">
+                    <div class="icon">🏪</div>
+                    <h3>Commerce</h3>
+                    <p>Trade, Business, Marketing</p>
+                </div>
             </div>
-            <div class="subject-card chemistry" onclick="startQuiz('Chemistry')">
-                <div class="icon">🧪</div>
-                <h3>Chemistry</h3>
-                <p>Organic, Inorganic, Physical</p>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <h3 style="text-align: center; color: #9C27B0; margin-bottom: 15px;">📖 Arts Subjects</h3>
+            <div class="subject-grid">
+                <div class="subject-card" style="border-color: #9C27B0;" onclick="startQuiz('Literature')">
+                    <div class="icon">📚</div>
+                    <h3>Literature</h3>
+                    <p>African & Non-African Works</p>
+                </div>
+                <div class="subject-card" style="border-color: #9C27B0;" onclick="startQuiz('Government')">
+                    <div class="icon">🏛️</div>
+                    <h3>Government</h3>
+                    <p>Political Theory, Nigerian Gov.</p>
+                </div>
+                <div class="subject-card" style="border-color: #9C27B0;" onclick="startQuiz('History')">
+                    <div class="icon">📜</div>
+                    <h3>History</h3>
+                    <p>Nigerian & African History</p>
+                </div>
+                <div class="subject-card" style="border-color: #9C27B0;" onclick="startQuiz('Geography')">
+                    <div class="icon">🌍</div>
+                    <h3>Geography</h3>
+                    <p>Physical & Human Geography</p>
+                </div>
             </div>
         </div>
     </div>
@@ -231,6 +294,33 @@
 
     <script>
         const questions = {
+            'Use of English': [
+                {
+                    question: 'In the following sentence, identify the part of speech of the underlined word: "The quick brown fox jumps over the lazy dog."',
+                    options: ['Noun', 'Verb', 'Adjective', 'Adverb'],
+                    correct: 2
+                },
+                {
+                    question: 'Choose the correct form: "Neither John nor his friends ____ coming to the party."',
+                    options: ['is', 'are', 'was', 'were'],
+                    correct: 1
+                },
+                {
+                    question: 'What is the synonym of "meticulous"?',
+                    options: ['Careless', 'Careful', 'Quick', 'Lazy'],
+                    correct: 1
+                },
+                {
+                    question: 'Choose the correctly punctuated sentence:',
+                    options: [
+                        'The students\' books are on the table.',
+                        'The student\'s books are on the table.',
+                        'The students books are on the table.',
+                        'The students book\'s are on the table.'
+                    ],
+                    correct: 0
+                }
+            ],
             'Mathematics': [
                 {
                     question: 'If 2x + 3 = 7, what is the value of x?',
@@ -243,59 +333,318 @@
                     correct: 2
                 },
                 {
-                    question: 'Solve for y: 3y - 6 = 15',
+                    question: 'Find the value of x in the equation: 3x - 6 = 15',
                     options: ['5', '6', '7', '8'],
                     correct: 2
-                }
-            ],
-            'English': [
-                {
-                    question: 'Choose the correct spelling:',
-                    options: ['Recieve', 'Receive', 'Receeve', 'Recive'],
-                    correct: 1
                 },
                 {
-                    question: 'What is the plural of "child"?',
-                    options: ['childs', 'children', 'childes', 'child'],
-                    correct: 1
-                },
-                {
-                    question: 'Choose the synonym for "happy":',
-                    options: ['sad', 'joyful', 'angry', 'tired'],
+                    question: 'If log₁₀ 100 = x, what is the value of x?',
+                    options: ['1', '2', '10', '100'],
                     correct: 1
                 }
             ],
             'Physics': [
                 {
-                    question: 'What is the unit of force?',
-                    options: ['Joule', 'Newton', 'Watt', 'Volt'],
+                    question: 'What is the unit of force in the SI system?',
+                    options: ['Joule', 'Newton', 'Watt', 'Pascal'],
                     correct: 1
                 },
                 {
-                    question: 'What is the acceleration due to gravity on Earth?',
+                    question: 'The acceleration due to gravity on Earth is approximately:',
                     options: ['9.8 m/s²', '10 m/s²', '8.9 m/s²', '11 m/s²'],
                     correct: 0
                 },
                 {
                     question: 'Light travels fastest in:',
-                    options: ['water', 'glass', 'vacuum', 'air'],
+                    options: ['Water', 'Glass', 'Vacuum', 'Air'],
+                    correct: 2
+                },
+                {
+                    question: 'Which of the following is a vector quantity?',
+                    options: ['Speed', 'Mass', 'Velocity', 'Temperature'],
                     correct: 2
                 }
             ],
             'Chemistry': [
                 {
-                    question: 'What is the chemical symbol for water?',
-                    options: ['H2O', 'CO2', 'NaCl', 'O2'],
+                    question: 'What is the chemical formula for water?',
+                    options: ['H₂O', 'CO₂', 'NaCl', 'O₂'],
                     correct: 0
                 },
                 {
-                    question: 'How many protons does carbon have?',
+                    question: 'How many protons does a carbon atom have?',
                     options: ['4', '6', '8', '12'],
                     correct: 1
                 },
                 {
                     question: 'What is the most abundant gas in Earth\'s atmosphere?',
                     options: ['Oxygen', 'Carbon dioxide', 'Nitrogen', 'Hydrogen'],
+                    correct: 2
+                },
+                {
+                    question: 'Which of the following is an alkali metal?',
+                    options: ['Calcium', 'Sodium', 'Aluminum', 'Iron'],
+                    correct: 1
+                }
+            ],
+            'Biology': [
+                {
+                    question: 'What is the basic unit of life?',
+                    options: ['Tissue', 'Organ', 'Cell', 'Organism'],
+                    correct: 2
+                },
+                {
+                    question: 'Photosynthesis primarily takes place in which part of the plant?',
+                    options: ['Roots', 'Stem', 'Leaves', 'Flowers'],
+                    correct: 2
+                },
+                {
+                    question: 'Which blood type is known as the universal donor?',
+                    options: ['A', 'B', 'AB', 'O'],
+                    correct: 3
+                },
+                {
+                    question: 'DNA stands for:',
+                    options: [
+                        'Deoxyribonucleic Acid',
+                        'Diribonucleic Acid', 
+                        'Deoxyribose Acid',
+                        'Deoxy Acid'
+                    ],
+                    correct: 0
+                }
+            ],
+            'Economics': [
+                {
+                    question: 'What does GDP stand for?',
+                    options: [
+                        'Gross Domestic Product',
+                        'General Domestic Product',
+                        'Gross Development Product',
+                        'General Development Product'
+                    ],
+                    correct: 0
+                },
+                {
+                    question: 'In economics, what does "scarcity" refer to?',
+                    options: [
+                        'Unlimited resources',
+                        'Limited resources relative to unlimited wants',
+                        'High prices',
+                        'Low demand'
+                    ],
+                    correct: 1
+                },
+                {
+                    question: 'The law of demand states that:',
+                    options: [
+                        'Price and quantity demanded move in the same direction',
+                        'Price and quantity demanded move in opposite directions',
+                        'Price has no effect on quantity demanded',
+                        'Demand is always constant'
+                    ],
+                    correct: 1
+                },
+                {
+                    question: 'What is inflation?',
+                    options: [
+                        'Decrease in prices',
+                        'Increase in unemployment',
+                        'General increase in prices',
+                        'Decrease in money supply'
+                    ],
+                    correct: 2
+                }
+            ],
+            'Accounting': [
+                {
+                    question: 'What is the fundamental accounting equation?',
+                    options: [
+                        'Assets = Liabilities - Equity',
+                        'Assets = Liabilities + Equity',
+                        'Assets + Liabilities = Equity',
+                        'Assets - Equity = Liabilities'
+                    ],
+                    correct: 1
+                },
+                {
+                    question: 'Which of the following is a current asset?',
+                    options: ['Building', 'Machinery', 'Cash', 'Land'],
+                    correct: 2
+                },
+                {
+                    question: 'A trial balance is prepared to:',
+                    options: [
+                        'Calculate profit',
+                        'Test the arithmetic accuracy of ledger accounts',
+                        'Prepare financial statements',
+                        'Record transactions'
+                    ],
+                    correct: 1
+                },
+                {
+                    question: 'Depreciation is:',
+                    options: [
+                        'Increase in asset value',
+                        'Decrease in asset value over time',
+                        'Cash payment',
+                        'Revenue earned'
+                    ],
+                    correct: 1
+                }
+            ],
+            'Commerce': [
+                {
+                    question: 'What is the primary function of a commercial bank?',
+                    options: [
+                        'Manufacturing goods',
+                        'Accepting deposits and lending money',
+                        'Selling insurance',
+                        'Transporting goods'
+                    ],
+                    correct: 1
+                },
+                {
+                    question: 'E-commerce refers to:',
+                    options: [
+                        'Electronic communication',
+                        'Business conducted over the internet',
+                        'Energy commerce',
+                        'European commerce'
+                    ],
+                    correct: 1
+                },
+                {
+                    question: 'What is a franchise?',
+                    options: [
+                        'A type of loan',
+                        'A business arrangement where one party allows another to use its brand',
+                        'A government permit',
+                        'A type of insurance'
+                    ],
+                    correct: 1
+                },
+                {
+                    question: 'The Stock Exchange is a market for:',
+                    options: ['Buying and selling goods', 'Trading securities', 'Foreign exchange', 'Commodities only'],
+                    correct: 1
+                }
+            ],
+            'Literature': [
+                {
+                    question: 'Who wrote "Things Fall Apart"?',
+                    options: ['Wole Soyinka', 'Chinua Achebe', 'Amos Tutuola', 'Gabriel Okara'],
+                    correct: 1
+                },
+                {
+                    question: 'What is a sonnet?',
+                    options: [
+                        'A 14-line poem',
+                        'A short story',
+                        'A type of novel',
+                        'A dramatic play'
+                    ],
+                    correct: 0
+                },
+                {
+                    question: 'In "Hamlet" by Shakespeare, what is the famous soliloquy that begins with "To be or not to be"?',
+                    options: [
+                        'A love poem',
+                        'A reflection on life and death',
+                        'A war cry',
+                        'A prayer'
+                    ],
+                    correct: 1
+                },
+                {
+                    question: 'What literary device involves giving human characteristics to non-human things?',
+                    options: ['Metaphor', 'Simile', 'Personification', 'Alliteration'],
+                    correct: 2
+                }
+            ],
+            'Government': [
+                {
+                    question: 'What is the primary function of the executive arm of government?',
+                    options: [
+                        'Making laws',
+                        'Interpreting laws',
+                        'Implementing laws',
+                        'Reviewing laws'
+                    ],
+                    correct: 2
+                },
+                {
+                    question: 'Nigeria operates which system of government?',
+                    options: ['Unitary', 'Federal', 'Confederate', 'Parliamentary'],
+                    correct: 1
+                },
+                {
+                    question: 'What is democracy?',
+                    options: [
+                        'Government by the military',
+                        'Government by the people',
+                        'Government by the wealthy',
+                        'Government by one person'
+                    ],
+                    correct: 1
+                },
+                {
+                    question: 'The separation of powers doctrine divides government into how many arms?',
+                    options: ['Two', 'Three', 'Four', 'Five'],
+                    correct: 1
+                }
+            ],
+            'History': [
+                {
+                    question: 'When did Nigeria gain independence?',
+                    options: ['1960', '1963', '1959', '1961'],
+                    correct: 0
+                },
+                {
+                    question: 'Who was the first President of Nigeria?',
+                    options: [
+                        'Nnamdi Azikiwe',
+                        'Abubakar Tafawa Balewa',
+                        'Obafemi Awolowo',
+                        'Ahmadu Bello'
+                    ],
+                    correct: 0
+                },
+                {
+                    question: 'The Berlin Conference of 1884-1885 was primarily about:',
+                    options: [
+                        'World War I',
+                        'Partition of Africa',
+                        'Trade agreements',
+                        'Peace treaties'
+                    ],
+                    correct: 1
+                },
+                {
+                    question: 'Which empire was known for the trans-Saharan trade?',
+                    options: ['Roman Empire', 'British Empire', 'Mali Empire', 'Ottoman Empire'],
+                    correct: 2
+                }
+            ],
+            'Geography': [
+                {
+                    question: 'What is the longest river in the world?',
+                    options: ['Amazon', 'Nile', 'Mississippi', 'Yangtze'],
+                    correct: 1
+                },
+                {
+                    question: 'Which layer of the atmosphere is closest to Earth?',
+                    options: ['Stratosphere', 'Mesosphere', 'Troposphere', 'Thermosphere'],
+                    correct: 2
+                },
+                {
+                    question: 'What type of rock is formed from cooled magma?',
+                    options: ['Sedimentary', 'Metamorphic', 'Igneous', 'Crystalline'],
+                    correct: 2
+                },
+                {
+                    question: 'The Sahara Desert is located primarily in which continent?',
+                    options: ['Asia', 'South America', 'Africa', 'Australia'],
                     correct: 2
                 }
             ]
