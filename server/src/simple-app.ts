@@ -229,6 +229,108 @@ app.get('/api/sessions/:sessionId/results', async (req, res) => {
   }
 });
 
+// Get all sessions (for admin dashboard)
+app.get('/api/sessions', async (req, res) => {
+  try {
+    const result = await query(`
+      SELECT 
+        s.id, s.subject_code, s.started_at, s.completed_at,
+        s.question_count, s.mode, s.time_limit,
+        COUNT(a.id) as answers_submitted,
+        COUNT(CASE WHEN a.is_correct = true THEN 1 END) as correct_answers
+      FROM sessions s
+      LEFT JOIN attempts a ON s.id = a.session_id
+      GROUP BY s.id, s.subject_code, s.started_at, s.completed_at, s.question_count, s.mode, s.time_limit
+      ORDER BY s.started_at DESC
+      LIMIT 50
+    `);
+
+    const sessions = result.rows.map(row => ({
+      id: row.id,
+      subjectCode: row.subject_code,
+      startedAt: row.started_at,
+      completedAt: row.completed_at,
+      questionCount: row.question_count,
+      mode: row.mode,
+      timeLimit: row.time_limit,
+      answersSubmitted: parseInt(row.answers_submitted),
+      correctAnswers: parseInt(row.correct_answers),
+      score: row.answers_submitted > 0 ? Math.round((row.correct_answers / row.answers_submitted) * 100) : 0
+    }));
+
+    return res.json({
+      success: true,
+      data: sessions
+    });
+
+  } catch (error) {
+    console.error('Error fetching sessions:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to fetch sessions'
+    });
+  }
+});
+
+// Get analytics data
+app.get('/api/analytics', async (req, res) => {
+  try {
+    const stats = await query(`
+      SELECT 
+        COUNT(DISTINCT s.id) as total_sessions,
+        COUNT(a.id) as total_attempts,
+        COUNT(CASE WHEN a.is_correct = true THEN 1 END) as correct_attempts,
+        AVG(a.time_spent_ms) as avg_time_ms
+      FROM sessions s
+      LEFT JOIN attempts a ON s.id = a.session_id
+    `);
+
+    const subjectStats = await query(`
+      SELECT 
+        s.subject_code,
+        COUNT(DISTINCT s.id) as sessions,
+        COUNT(a.id) as attempts,
+        COUNT(CASE WHEN a.is_correct = true THEN 1 END) as correct,
+        AVG(a.time_spent_ms) as avg_time
+      FROM sessions s
+      LEFT JOIN attempts a ON s.id = a.session_id
+      GROUP BY s.subject_code
+      ORDER BY sessions DESC
+    `);
+
+    const analytics = {
+      overview: {
+        totalSessions: parseInt(stats.rows[0].total_sessions) || 0,
+        totalAttempts: parseInt(stats.rows[0].total_attempts) || 0,
+        correctAttempts: parseInt(stats.rows[0].correct_attempts) || 0,
+        avgTimeMs: Math.round(parseFloat(stats.rows[0].avg_time_ms) || 0),
+        successRate: stats.rows[0].total_attempts > 0 ? 
+          Math.round((stats.rows[0].correct_attempts / stats.rows[0].total_attempts) * 100) : 0
+      },
+      bySubject: subjectStats.rows.map(row => ({
+        subjectCode: row.subject_code,
+        sessions: parseInt(row.sessions),
+        attempts: parseInt(row.attempts),
+        correct: parseInt(row.correct),
+        avgTime: Math.round(parseFloat(row.avg_time) || 0),
+        successRate: row.attempts > 0 ? Math.round((row.correct / row.attempts) * 100) : 0
+      }))
+    };
+
+    return res.json({
+      success: true,
+      data: analytics
+    });
+
+  } catch (error) {
+    console.error('Error fetching analytics:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to fetch analytics'
+    });
+  }
+});
+
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
@@ -240,7 +342,9 @@ app.get('/', (req, res) => {
       'GET /api/questions/:subjectCode',
       'POST /api/sessions/create',
       'POST /api/sessions/answer',
-      'GET /api/sessions/:sessionId/results'
+      'GET /api/sessions/:sessionId/results',
+      'GET /api/sessions',
+      'GET /api/analytics'
     ]
   });
 });
