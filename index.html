@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExamCoach Complete Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #fff, #f0f8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .platform-card {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .platform-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .platform-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .card-icon {
+            font-size: 4em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #333;
+        }
+
+        .card-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .card-features {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .card-features li {
+            padding: 8px 0;
+            position: relative;
+            padding-left: 25px;
+            color: #555;
+        }
+
+        .card-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #5a67d8, #6b46c1);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .status-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+
+        .status-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .status-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .status-label {
+            opacity: 0.8;
+        }
+
+        .quick-access {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .quick-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .api-showcase {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .api-endpoints {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .endpoint {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .method {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .platform-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .card-actions {
+                flex-direction: column;
+            }
+
+            .quick-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎓 ExamCoach Platform</h1>
+        <p>Complete JAMB Preparation System - Frontend, Backend & Admin Dashboard</p>
+    </div>
+
+    <div class="container">
+        <!-- System Status -->
+        <div class="status-section">
+            <h2 style="text-align: center; margin-bottom: 25px;">System Status</h2>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-value" id="backendStatus">🔄</div>
+                    <div class="status-label">Backend API</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-value" id="questionCount">-</div>
+                    <div class="status-label">Questions Available</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-value">11</div>
+                    <div class="status-label">JAMB Subjects</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-value">3</div>
+                    <div class="status-label">Applications</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Platform Applications -->
+        <div class="platform-grid">
+            <!-- Student Practice App -->
+            <div class="platform-card">
+                <div class="card-icon">📱</div>
+                <h3 class="card-title">Student Practice App</h3>
+                <p class="card-description">
+                    Interactive JAMB practice application with static questions for immediate practice
+                </p>
+                <ul class="card-features">
+                    <li>11 JAMB subjects with categories</li>
+                    <li>Instant feedback and scoring</li>
+                    <li>Mobile-friendly interface</li>
+                    <li>No internet required for questions</li>
+                </ul>
+                <div class="card-actions">
+                    <a href="/jamb_test.html" class="btn btn-primary" target="_blank">Launch Student App</a>
+                </div>
+            </div>
+
+            <!-- Database-Powered App -->
+            <div class="platform-card">
+                <div class="card-icon">🗄️</div>
+                <h3 class="card-title">Database-Powered App</h3>
+                <p class="card-description">
+                    Full-stack application that connects to PostgreSQL database for authentic question delivery
+                </p>
+                <ul class="card-features">
+                    <li>Real database questions</li>
+                    <li>Session tracking and analytics</li>
+                    <li>Answer submission and validation</li>
+                    <li>Performance monitoring</li>
+                </ul>
+                <div class="card-actions">
+                    <a href="/jamb_api_test.html" class="btn btn-primary" target="_blank">Launch Database App</a>
+                </div>
+            </div>
+
+            <!-- Admin Dashboard -->
+            <div class="platform-card">
+                <div class="card-icon">⚙️</div>
+                <h3 class="card-title">Admin Dashboard</h3>
+                <p class="card-description">
+                    Complete backend management system for questions, sessions, and analytics
+                </p>
+                <ul class="card-features">
+                    <li>Question management across all subjects</li>
+                    <li>Session monitoring and analytics</li>
+                    <li>API testing and health monitoring</li>
+                    <li>Phone app integration tools</li>
+                </ul>
+                <div class="card-actions">
+                    <a href="/admin_dashboard.html" class="btn btn-primary" target="_blank">Launch Admin Dashboard</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phone App Integration -->
+        <div class="api-showcase">
+            <h3 style="text-align: center; margin-bottom: 20px; color: #667eea;">📲 Phone App Integration API</h3>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                Your backend API is ready to supply timed questions to mobile applications. Use these endpoints:
+            </p>
+            
+            <div class="api-endpoints">
+                <div class="endpoint">
+                    <span class="method">GET</span> /api/subjects<br>
+                    <small>Get all available JAMB subjects</small>
+                </div>
+                <div class="endpoint">
+                    <span class="method">GET</span> /api/questions/:code<br>
+                    <small>Get questions for specific subject</small>
+                </div>
+                <div class="endpoint">
+                    <span class="method">POST</span> /api/sessions/create<br>
+                    <small>Create new practice session</small>
+                </div>
+                <div class="endpoint">
+                    <span class="method">POST</span> /api/sessions/answer<br>
+                    <small>Submit answers and get feedback</small>
+                </div>
+                <div class="endpoint">
+                    <span class="method">GET</span> /api/sessions/:id/results<br>
+                    <small>Get session results and analytics</small>
+                </div>
+                <div class="endpoint">
+                    <span class="method">GET</span> /api/analytics<br>
+                    <small>Get performance analytics data</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Access -->
+        <div class="quick-access">
+            <h3 style="margin-bottom: 15px;">Quick Actions</h3>
+            <p style="opacity: 0.8; margin-bottom: 20px;">
+                Access all platform features and monitor your JAMB preparation system
+            </p>
+            <div class="quick-buttons">
+                <button class="btn btn-secondary" onclick="checkSystemHealth()">Check System Health</button>
+                <button class="btn btn-secondary" onclick="openAllApps()">Open All Apps</button>
+                <button class="btn btn-secondary" onclick="testAPI()">Test API Connection</button>
+            </div>
+            <div id="systemInfo" style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px; display: none;">
+                <!-- System info will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+
+        // Initialize platform
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('ExamCoach Platform Loaded');
+            checkSystemHealth();
+        });
+
+        async function checkSystemHealth() {
+            const backendStatusEl = document.getElementById('backendStatus');
+            const questionCountEl = document.getElementById('questionCount');
+            const systemInfoEl = document.getElementById('systemInfo');
+            
+            backendStatusEl.textContent = '🔄';
+            
+            try {
+                // Check backend health
+                const healthResponse = await fetch(`${API_BASE}/health`);
+                const healthData = await healthResponse.json();
+                
+                if (healthResponse.ok) {
+                    backendStatusEl.textContent = '✅';
+                    
+                    // Get subjects to count questions
+                    const subjectsResponse = await fetch(`${API_BASE}/api/subjects`);
+                    const subjectsData = await subjectsResponse.json();
+                    
+                    if (subjectsResponse.ok && subjectsData.success) {
+                        const totalQuestions = subjectsData.data.reduce((sum, subject) => sum + subject.questionCount, 0);
+                        questionCountEl.textContent = totalQuestions.toLocaleString();
+                    }
+                    
+                    systemInfoEl.innerHTML = `
+                        <strong>✅ System Status: All Systems Operational</strong><br>
+                        <small>Backend: ${healthData.message}</small><br>
+                        <small>Database: Connected and responding</small><br>
+                        <small>Last checked: ${new Date().toLocaleTimeString()}</small>
+                    `;
+                    systemInfoEl.style.display = 'block';
+                    
+                } else {
+                    throw new Error('Backend not responding');
+                }
+                
+            } catch (error) {
+                backendStatusEl.textContent = '❌';
+                questionCountEl.textContent = 'Error';
+                
+                systemInfoEl.innerHTML = `
+                    <strong>⚠️ System Issue Detected</strong><br>
+                    <small>Backend API: Not responding</small><br>
+                    <small>Error: ${error.message}</small><br>
+                    <small>Check ExamCoach Backend workflow</small>
+                `;
+                systemInfoEl.style.display = 'block';
+            }
+        }
+
+        function openAllApps() {
+            // Open all three applications
+            window.open('/jamb_test.html', '_blank');
+            window.open('/jamb_api_test.html', '_blank');
+            window.open('/admin_dashboard.html', '_blank');
+        }
+
+        async function testAPI() {
+            const systemInfoEl = document.getElementById('systemInfo');
+            systemInfoEl.innerHTML = '<div style="text-align: center;">Testing API endpoints...</div>';
+            systemInfoEl.style.display = 'block';
+            
+            const endpoints = [
+                { name: 'Health Check', url: '/health' },
+                { name: 'Subjects', url: '/api/subjects' },
+                { name: 'Math Questions', url: '/api/questions/MTH?limit=3' },
+                { name: 'Analytics', url: '/api/analytics' }
+            ];
+            
+            let results = '<strong>🔬 API Test Results:</strong><br><br>';
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(`${API_BASE}${endpoint.url}`);
+                    const status = response.ok ? '✅' : '❌';
+                    results += `${status} ${endpoint.name}: ${response.status}<br>`;
+                } catch (error) {
+                    results += `❌ ${endpoint.name}: Connection failed<br>`;
+                }
+            }
+            
+            results += `<br><small>API Base URL: ${API_BASE}</small>`;
+            systemInfoEl.innerHTML = results;
+        }
+
+        // Auto-refresh system status every 30 seconds
+        setInterval(checkSystemHealth, 30000);
+    </script>
+</body>
+</html>
