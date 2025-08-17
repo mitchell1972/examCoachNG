@@ -8,8 +8,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Basic middleware
-app.use(cors());
+// Basic middleware with CORS configuration
+app.use(cors({
+  origin: '*', // Allow all origins for development
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 app.use(express.json());
 
 // Health check
