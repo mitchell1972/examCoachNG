@@ -214,7 +214,7 @@ app.get('/api/sessions/:sessionId/results', async (req, res) => {
     const total = parseInt(result.total_questions);
     const percentage = total > 0 ? (score / total) * 100 : 0;
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         sessionId,
@@ -227,7 +227,7 @@ app.get('/api/sessions/:sessionId/results', async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching results:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch session results'
     });

@@ -1,0 +1,158 @@
+ExamCoach Replit Fix Guide
+🔍 Issues Identified
+Issue #1: Backend TypeScript Compilation Failure
+Problem: The main backend server ( server/src/app.ts ) fails to compile due to:
+- Missing TypeScript dependencies
+- Database connection errors
+- Module resolution issues
+Root Cause: The original codebase expects a full TypeScript environment with
+database setup
+Issue #2: Flutter App API URL Misconfiguration
+Problem: The Flutter app is hardcoded to connect to a non-existent remote server
+- Current URL: https://examcoach-backend.repl.co
+- This server doesn't exist or is unreachable
+Root Cause: Hardcoded API endpoint in environment configuration
+Issue #3: Firebase Configuration Missing
+Problem: The Flutter app tries to initialize Firebase but critical files are missing:
+- google-services.json (Android)
+- GoogleService-Info.plist (iOS)
+- Firebase configuration setup
+Root Cause: Firebase was set up but configuration files weren't included in the
+repository
+1 / 7
+✅ Complete Solutions
+Solution #1: Use Mock Backend Server
+Step 1: Navigate to server directory in Replit shell
+cd server
+Step 2: Start the working JavaScript mock server
+node src/mock-app.js
+Step 3: Verify server is running
+- Check Replit webview or console for "Server running on port 3000"
+- Test health endpoint:
+https://your-repl-name.your-username.repl.co/health
+What this provides:
+- ✅ Working REST API endpoints
+- ✅ Mock exam data (50 questions per subject)
+- ✅ No database dependencies
+- ✅ Instant startup
+Solution #2: Fix Flutter API Configuration
+File to edit: app/lib/core/env/env.dart
+Original code (BROKEN):
+static const apiBase = String.fromEnvironment(
+'API_BASE_URL',
+defaultValue: 'https://examcoach-backend.repl.co',
+);
+2 / 7
+Fixed code (WORKING):
+static const apiBase = String.fromEnvironment(
+'API_BASE_URL',
+defaultValue: 'https://YOUR-REPL-NAME.YOUR-USERNAME.repl.co',
+);
+Replace:
+- YOUR-REPL-NAME with your actual Repl name
+- YOUR-USERNAME with your Replit username
+Example: If your Repl is called "examcoach" and username is "john123":
+defaultValue: 'https://examcoach.john123.repl.co',
+Solution #3: Disable Firebase to Prevent Crashes
+File to edit: app/lib/main.dart
+Step 1: Comment out Firebase imports
+// import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_analytics/firebase_analytics.dart';
+Step 2: Comment out Firebase initialization
+3 / 7
+Future<void> main() async {
+WidgetsFlutterBinding.ensureInitialized();
+// Comment out Firebase initialization
+// await Firebase.initializeApp();
+runApp(const ExamCoachApp());
+}
+Step 3: Comment out any other Firebase-related service initializations
+// await FirebaseService.instance.initialize();
+// await NotificationService.instance.initialize();
+🚀 Step-by-Step Implementation
+Phase 1: Backend Setup (5 minutes)
+Open Replit shell
+Run: cd server
+Run: node src/mock-app.js
+Verify: Check that webview shows server running
+Test: Visit /health endpoint in browser
+Phase 2: Frontend Configuration (10 minutes)
+Edit app/lib/core/env/env.dart
+- Update defaultValue with your Replit URL
+1.
+2.
+3.
+4.
+5.
+1.
+4 / 7
+Edit app/lib/main.dart
+- Comment out all Firebase imports
+- Comment out Firebase.initializeApp()
+Save both files
+Phase 3: Testing (5 minutes)
+Backend test: curl https://your-repl-url/api/subjects
+Frontend test: cd app && flutter run
+Verify: App starts without crashes
+Verify: App loads data from backend
+📋 Verification Checklist
+Backend Verification
+[ ] Server starts without errors
+[ ] Health endpoint returns: {"status":"OK",...}
+[ ] Subjects endpoint returns array of subjects
+[ ] Questions endpoint returns array of questions
+[ ] No compilation errors in console
+Frontend Verification
+[ ] App compiles without Firebase errors
+[ ] App starts without crashes
+[ ] No "Firebase not initialized" errors
+[ ] API calls reach the backend successfully
+[ ] Mock data displays in the app
+2.
+3.
+1.
+2.
+3.
+4.
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+5 / 7
+🔧 API Endpoints Available
+Once fixed, your app will have access to:
+Endpoint Method Description Response
+/health GET Server health check Status OK
+/api/subjects GET List of exam subjects Array of subjects
+/api/questions/ENG GET English questions 50 questions
+/api/questions/MTH GET Math questions 50 questions
+/api/questions/PHY GET Physics questions 50 questions
+/api/questions/CHE GET Chemistry questions 50 questions
+/api/questions/BIO GET Biology questions 50 questions⚠️
+Important Notes for Replit
+Always use the mock server ( mock-app.js ) - the TypeScript version won't
+work
+Update the API URL with your actual Replit URL
+Keep Firebase disabled until you add proper configuration files
+Test the backend first before testing the Flutter app
+Use Replit's webview to verify the server is responding
+🎯 Expected Results
+After applying all fixes:
+- ✅ Backend serves on your Replit URL
+- ✅ Flutter app connects to backend successfully
+- ✅ No crashes or compilation errors
+1.
+2.
+3.
+4.
+5.
+6 / 7
+- ✅ Mock exam data loads in the app
+- ✅ Full communication between frontend and backend
+Your ExamCoach app will be fully functional for development and testing!

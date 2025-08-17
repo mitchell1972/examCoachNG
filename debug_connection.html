@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connection Debug</title>
+</head>
+<body>
+    <h1>Backend Connection Debug</h1>
+    <div id="results"></div>
+
+    <script>
+        async function debugConnection() {
+            const results = document.getElementById('results');
+            
+            // Test 1: Health endpoint
+            try {
+                console.log('Testing health endpoint...');
+                const response = await fetch('http://localhost:3000/health');
+                const data = await response.json();
+                results.innerHTML += `<p>✅ Health: ${JSON.stringify(data)}</p>`;
+            } catch (error) {
+                results.innerHTML += `<p>❌ Health: ${error.message}</p>`;
+                console.error('Health test failed:', error);
+            }
+
+            // Test 2: Subjects endpoint
+            try {
+                console.log('Testing subjects endpoint...');
+                const response = await fetch('http://localhost:3000/api/subjects');
+                const data = await response.json();
+                results.innerHTML += `<p>✅ Subjects: Found ${data.data.length} subjects</p>`;
+            } catch (error) {
+                results.innerHTML += `<p>❌ Subjects: ${error.message}</p>`;
+                console.error('Subjects test failed:', error);
+            }
+        }
+
+        // Run debug on load
+        document.addEventListener('DOMContentLoaded', debugConnection);
+    </script>
+</body>
+</html>

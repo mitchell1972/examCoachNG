@@ -561,12 +561,11 @@
             const text = document.getElementById('connectionText');
             
             try {
-                const response = await fetch(`http://localhost:3000/health`, {
+                const response = await fetch(`${API_BASE}/health`, {
                     method: 'GET',
                     mode: 'cors',
                     headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
+                        'Accept': 'application/json'
                     }
                 });
                 const data = await response.json();
@@ -596,8 +595,7 @@
                     method: 'GET',
                     mode: 'cors',
                     headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
+                        'Accept': 'application/json'
                     }
                 });
                 const data = await response.json();
