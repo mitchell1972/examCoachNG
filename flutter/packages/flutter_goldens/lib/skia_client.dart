@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/// @docImport 'flutter_goldens.dart';
+library;
+
 import 'dart:convert';
 import 'dart:io' as io;
 
@@ -24,7 +27,7 @@ const String _kImpellerKey = 'FLUTTER_TEST_IMPELLER';
 /// Signature of callbacks used to inject [print] replacements.
 typedef LogCallback = void Function(String);
 
-/// Exception thrown when an error is returned from the [SkiaClient].
+/// Exception thrown when an error is returned from the [SkiaGoldClient].
 class SkiaException implements Exception {
   /// Creates a new `SkiaException` with a required error [message].
   const SkiaException(this.message);
@@ -75,12 +78,12 @@ class SkiaGoldClient {
   /// A client for making Http requests to the Flutter Gold dashboard.
   final io.HttpClient httpClient;
 
-  /// The local [Directory] within the [comparisonRoot] for the current test
+  /// The local [Directory] within the comparison root for the current test
   /// context. In this directory, the client will create image and JSON files
   /// for the goldctl tool to use.
   ///
-  /// This is informed by the [FlutterGoldenFileComparator] [basedir]. It cannot
-  /// be null.
+  /// This is informed by [FlutterGoldenFileComparator.basedir]. It cannot be
+  /// null.
   final Directory workDirectory;
 
   /// The logging function to use when reporting messages to the console.
@@ -109,9 +112,8 @@ class SkiaGoldClient {
     final List<String> authCommand = <String>[
       _goldctl,
       'auth',
-      '--work-dir', workDirectory
-        .childDirectory('temp')
-        .path,
+      '--work-dir',
+      workDirectory.childDirectory('temp').path,
       '--luci',
     ];
 
@@ -120,9 +122,11 @@ class SkiaGoldClient {
     if (result.exitCode != 0) {
       final StringBuffer buf = StringBuffer()
         ..writeln('Skia Gold authorization failed.')
-        ..writeln('Luci environments authenticate using the file provided '
+        ..writeln(
+          'Luci environments authenticate using the file provided '
           'by LUCI_CONTEXT. There may be an error with this file or Gold '
-          'authentication.')
+          'authentication.',
+        )
         ..writeln('Debug information for Gold --------------------------------')
         ..writeln('stdout: ${result.stdout}')
         ..writeln('stderr: ${result.stderr}');
@@ -158,14 +162,18 @@ class SkiaGoldClient {
 
     final List<String> imgtestInitCommand = <String>[
       _goldctl,
-      'imgtest', 'init',
-      '--instance', 'flutter',
-      '--work-dir', workDirectory
-        .childDirectory('temp')
-        .path,
-      '--commit', commitHash,
-      '--keys-file', keys.path,
-      '--failure-file', failures.path,
+      'imgtest',
+      'init',
+      '--instance',
+      'flutter',
+      '--work-dir',
+      workDirectory.childDirectory('temp').path,
+      '--commit',
+      commitHash,
+      '--keys-file',
+      keys.path,
+      '--failure-file',
+      failures.path,
       '--passfail',
     ];
 
@@ -207,14 +215,15 @@ class SkiaGoldClient {
   Future<bool> imgtestAdd(String testName, File goldenFile) async {
     final List<String> imgtestCommand = <String>[
       _goldctl,
-      'imgtest', 'add',
-      '--work-dir', workDirectory
-        .childDirectory('temp')
-        .path,
-      '--test-name', cleanTestName(testName),
-      '--png-file', goldenFile.path,
+      'imgtest',
+      'add',
+      '--work-dir',
+      workDirectory.childDirectory('temp').path,
+      '--test-name',
+      cleanTestName(testName),
+      '--png-file',
+      goldenFile.path,
       '--passfail',
-      ..._getPixelMatchingArguments(),
     ];
 
     final io.ProcessResult result = await process.run(imgtestCommand);
@@ -223,9 +232,7 @@ class SkiaGoldClient {
       // If an unapproved image has made it to post-submit, throw to close the
       // tree.
       String? resultContents;
-      final File resultFile = workDirectory.childFile(fs.path.join(
-        'result-state.json',
-      ));
+      final File resultFile = workDirectory.childFile(fs.path.join('result-state.json'));
       if (await resultFile.exists()) {
         resultContents = await resultFile.readAsString();
       }
@@ -238,7 +245,9 @@ class SkiaGoldClient {
         ..writeln('Visit https://flutter-gold.skia.org/ to view and approve ')
         ..writeln('the image(s), or revert the associated change. For more ')
         ..writeln('information, visit the wiki: ')
-        ..writeln('https://github.com/flutter/flutter/blob/main/docs/contributing/testing/Writing-a-golden-file-test-for-package-flutter.md')
+        ..writeln(
+          'https://github.com/flutter/flutter/blob/main/docs/contributing/testing/Writing-a-golden-file-test-for-package-flutter.md',
+        )
         ..writeln()
         ..writeln('Debug information for Gold --------------------------------')
         ..writeln('stdout: ${result.stdout}')
@@ -279,17 +288,23 @@ class SkiaGoldClient {
 
     final List<String> imgtestInitCommand = <String>[
       _goldctl,
-      'imgtest', 'init',
-      '--instance', 'flutter',
-      '--work-dir', workDirectory
-        .childDirectory('temp')
-        .path,
-      '--commit', commitHash,
-      '--keys-file', keys.path,
-      '--failure-file', failures.path,
+      'imgtest',
+      'init',
+      '--instance',
+      'flutter',
+      '--work-dir',
+      workDirectory.childDirectory('temp').path,
+      '--commit',
+      commitHash,
+      '--keys-file',
+      keys.path,
+      '--failure-file',
+      failures.path,
       '--passfail',
-      '--crs', 'github',
-      '--patchset_id', commitHash,
+      '--crs',
+      'github',
+      '--patchset_id',
+      commitHash,
       ...getCIArguments(),
     ];
 
@@ -328,27 +343,30 @@ class SkiaGoldClient {
   ///
   /// The [testName] and [goldenFile] parameters reference the current
   /// comparison being evaluated by the [FlutterPreSubmitFileComparator].
-  Future<void> tryjobAdd(String testName, File goldenFile) async {
+  ///
+  /// If the tryjob fails due to pixel differences, the method will succeed
+  /// as the failure will be triaged in the 'Flutter Gold' dashboard, and the
+  /// `stdout` will contain the failure message; otherwise will return `null`.
+  Future<String?> tryjobAdd(String testName, File goldenFile) async {
     final List<String> imgtestCommand = <String>[
       _goldctl,
-      'imgtest', 'add',
-      '--work-dir', workDirectory
-        .childDirectory('temp')
-        .path,
-      '--test-name', cleanTestName(testName),
-      '--png-file', goldenFile.path,
-      ..._getPixelMatchingArguments(),
+      'imgtest',
+      'add',
+      '--work-dir',
+      workDirectory.childDirectory('temp').path,
+      '--test-name',
+      cleanTestName(testName),
+      '--png-file',
+      goldenFile.path,
     ];
 
     final io.ProcessResult result = await process.run(imgtestCommand);
 
     final String resultStdout = result.stdout.toString();
     if (result.exitCode != 0 &&
-      !(resultStdout.contains('Untriaged') || resultStdout.contains('negative image'))) {
+        !(resultStdout.contains('Untriaged') || resultStdout.contains('negative image'))) {
       String? resultContents;
-      final File resultFile = workDirectory.childFile(fs.path.join(
-        'result-state.json',
-      ));
+      final File resultFile = workDirectory.childFile(fs.path.join('result-state.json'));
       if (await resultFile.exists()) {
         resultContents = await resultFile.readAsString();
       }
@@ -365,51 +383,7 @@ class SkiaGoldClient {
         ..writeln('result-state.json: ${resultContents ?? 'No result file found.'}');
       throw SkiaException(buf.toString());
     }
-  }
-
-  // Constructs arguments for `goldctl` for controlling how pixels are compared.
-  //
-  // For AOT and CanvasKit exact pixel matching is used. For the HTML renderer
-  // on the web a fuzzy matching algorithm is used that allows very small deltas
-  // because Chromium cannot exactly reproduce the same golden on all computers.
-  // It seems to depend on the hardware/OS/driver combination. However, those
-  // differences are very small (typically not noticeable to human eye).
-  List<String> _getPixelMatchingArguments() {
-    // Only use fuzzy pixel matching in the HTML renderer.
-    if (!_isBrowserTest || _isBrowserSkiaTest) {
-      return const <String>[];
-    }
-
-    // The algorithm to be used when matching images. The available options are:
-    // - "fuzzy": Allows for customizing the thresholds of pixel differences.
-    // - "sobel": Same as "fuzzy" but performs edge detection before performing
-    //            a fuzzy match.
-    const String algorithm = 'fuzzy';
-
-    // The number of pixels in this image that are allowed to differ from the
-    // baseline.
-    //
-    // The chosen number - 20 - is arbitrary. Even for a small golden file, say
-    // 50 x 50, it would be less than 1% of the total number of pixels. This
-    // number should not grow too much. If it's growing, it is probably due to a
-    // larger issue that needs to be addressed at the infra level.
-    const int maxDifferentPixels = 20;
-
-    // The maximum acceptable difference per pixel.
-    //
-    // Uses the Manhattan distance using the RGBA color components as
-    // coordinates. The chosen number - 4 - is arbitrary. It's small enough to
-    // both not be noticeable and not trigger test flakes due to sub-pixel
-    // golden deltas. This number should not grow too much. If it's growing, it
-    // is probably due to a larger issue that needs to be addressed at the infra
-    // level.
-    const int pixelDeltaThreshold = 4;
-
-    return <String>[
-      '--add-test-optional-key', 'image_matching_algorithm:$algorithm',
-      '--add-test-optional-key', 'fuzzy_max_different_pixels:$maxDifferentPixels',
-      '--add-test-optional-key', 'fuzzy_pixel_delta_threshold:$pixelDeltaThreshold',
-    ];
+    return result.exitCode == 0 ? null : resultStdout;
   }
 
   /// Returns the latest positive digest for the given test known to Flutter
@@ -417,32 +391,28 @@ class SkiaGoldClient {
   Future<String?> getExpectationForTest(String testName) async {
     late String? expectation;
     final String traceID = getTraceID(testName);
-    await io.HttpOverrides.runWithHttpOverrides<Future<void>>(() async {
-      final Uri requestForExpectations = Uri.parse(
-        'https://flutter-gold.skia.org/json/v2/latestpositivedigest/$traceID'
-      );
-      late String rawResponse;
-      try {
-        final io.HttpClientRequest request = await httpClient.getUrl(requestForExpectations);
-        final io.HttpClientResponse response = await request.close();
-        rawResponse = await utf8.decodeStream(response);
-        final dynamic jsonResponse = json.decode(rawResponse);
-        if (jsonResponse is! Map<String, dynamic>) {
-          throw const FormatException('Skia gold expectations do not match expected format.');
-        }
-        expectation = jsonResponse['digest'] as String?;
-      } on FormatException catch (error) {
-        log(
-          'Formatting error detected requesting expectations from Flutter Gold.\n'
-          'error: $error\n'
-          'url: $requestForExpectations\n'
-          'response: $rawResponse'
-        );
-        rethrow;
-      }
-    },
-      SkiaGoldHttpOverrides(),
+    final Uri requestForExpectations = Uri.parse(
+      'https://flutter-gold.skia.org/json/v2/latestpositivedigest/$traceID',
     );
+    late String rawResponse;
+    try {
+      final io.HttpClientRequest request = await httpClient.getUrl(requestForExpectations);
+      final io.HttpClientResponse response = await request.close();
+      rawResponse = await utf8.decodeStream(response);
+      final dynamic jsonResponse = json.decode(rawResponse);
+      if (jsonResponse is! Map<String, dynamic>) {
+        throw const FormatException('Skia gold expectations do not match expected format.');
+      }
+      expectation = jsonResponse['digest'] as String?;
+    } on FormatException catch (error) {
+      log(
+        'Formatting error detected requesting expectations from Flutter Gold.\n'
+        'error: $error\n'
+        'url: $requestForExpectations\n'
+        'response: $rawResponse',
+      );
+      rethrow;
+    }
     return expectation;
   }
 
@@ -450,18 +420,14 @@ class SkiaGoldClient {
   /// Flutter Gold dashboard.
   ///
   /// The provided image hash represents an expectation from Flutter Gold.
-  Future<List<int>>getImageBytes(String imageHash) async {
+  Future<List<int>> getImageBytes(String imageHash) async {
     final List<int> imageBytes = <int>[];
-    await io.HttpOverrides.runWithHttpOverrides<Future<void>>(() async {
-      final Uri requestForImage = Uri.parse(
-        'https://flutter-gold.skia.org/img/images/$imageHash.png',
-      );
-      final io.HttpClientRequest request = await httpClient.getUrl(requestForImage);
-      final io.HttpClientResponse response = await request.close();
-      await response.forEach((List<int> bytes) => imageBytes.addAll(bytes));
-    },
-      SkiaGoldHttpOverrides(),
+    final Uri requestForImage = Uri.parse(
+      'https://flutter-gold.skia.org/img/images/$imageHash.png',
     );
+    final io.HttpClientRequest request = await httpClient.getUrl(requestForImage);
+    final io.HttpClientResponse response = await request.close();
+    await response.forEach((List<int> bytes) => imageBytes.addAll(bytes));
     return imageBytes;
   }
 
@@ -470,10 +436,11 @@ class SkiaGoldClient {
     if (!_flutterRoot.existsSync()) {
       throw SkiaException('Flutter root could not be found: $_flutterRoot\n');
     } else {
-      final io.ProcessResult revParse = await process.run(
-        <String>['git', 'rev-parse', 'HEAD'],
-        workingDirectory: _flutterRoot.path,
-      );
+      final io.ProcessResult revParse = await process.run(<String>[
+        'git',
+        'rev-parse',
+        'HEAD',
+      ], workingDirectory: _flutterRoot.path);
       if (revParse.exitCode != 0) {
         throw const SkiaException('Current commit of Flutter can not be found.');
       }
@@ -490,10 +457,9 @@ class SkiaGoldClient {
   String _getKeysJSON() {
     final String? webRenderer = _webRendererValue;
     final Map<String, dynamic> keys = <String, dynamic>{
-      'Platform' : platform.operatingSystem,
-      'CI' : 'luci',
-      if (_isImpeller)
-        'impeller': 'swiftshader',
+      'Platform': platform.operatingSystem,
+      'CI': 'luci',
+      if (_isImpeller) 'impeller': 'swiftshader',
     };
     if (_isBrowserTest) {
       keys['Browser'] = _browserKey;
@@ -514,10 +480,7 @@ class SkiaGoldClient {
   /// Returns a boolean value to prevent the client from re-authorizing itself
   /// for multiple tests.
   Future<bool> clientIsAuthorized() async {
-    final File authFile = workDirectory.childFile(fs.path.join(
-      'temp',
-      'auth_opt.json',
-    ));
+    final File authFile = workDirectory.childFile(fs.path.join('temp', 'auth_opt.json'));
 
     if (await authFile.exists()) {
       final String contents = await authFile.readAsString();
@@ -534,11 +497,7 @@ class SkiaGoldClient {
     final List<String> refs = platform.environment['GOLD_TRYJOB']!.split('/');
     final String pullRequest = refs[refs.length - 2];
 
-    return <String>[
-      '--changelist', pullRequest,
-      '--cis', 'buildbucket',
-      '--jobid', jobId,
-    ];
+    return <String>['--changelist', pullRequest, '--cis', 'buildbucket', '--jobid', jobId];
   }
 
   bool get _isBrowserTest {
@@ -546,10 +505,11 @@ class SkiaGoldClient {
   }
 
   bool get _isBrowserSkiaTest {
-    return _isBrowserTest && switch (platform.environment[_kWebRendererKey]) {
-      'canvaskit' || 'skwasm' => true,
-      _ => false,
-    };
+    return _isBrowserTest &&
+        switch (platform.environment[_kWebRendererKey]) {
+          'canvaskit' || 'skwasm' => true,
+          _ => false,
+        };
   }
 
   String? get _webRendererValue {
@@ -571,16 +531,13 @@ class SkiaGoldClient {
   String getTraceID(String testName) {
     final String? webRenderer = _webRendererValue;
     final Map<String, Object?> parameters = <String, Object?>{
-      if (_isBrowserTest)
-        'Browser' : _browserKey,
-      'CI' : 'luci',
-      'Platform' : platform.operatingSystem,
-      if (webRenderer != null)
-        'WebRenderer' : webRenderer,
-      if (_isImpeller)
-        'impeller': 'swiftshader',
-      'name' : testName,
-      'source_type' : 'flutter',
+      if (_isBrowserTest) 'Browser': _browserKey,
+      'CI': 'luci',
+      'Platform': platform.operatingSystem,
+      if (webRenderer != null) 'WebRenderer': webRenderer,
+      if (_isImpeller) 'impeller': 'swiftshader',
+      'name': testName,
+      'source_type': 'flutter',
     };
     final Map<String, Object?> sorted = <String, Object?>{};
     for (final String key in parameters.keys.toList()..sort()) {
@@ -591,6 +548,3 @@ class SkiaGoldClient {
     return md5Sum;
   }
 }
-
-/// Used to make HttpRequests during testing.
-class SkiaGoldHttpOverrides extends io.HttpOverrides { }
