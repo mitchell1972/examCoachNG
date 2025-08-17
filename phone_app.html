@@ -519,8 +519,10 @@
     </div>
 
     <script>
-        // API Configuration - Connect to your backend
-        const API_BASE = 'http://localhost:3000';
+        // API Configuration - Use the working backend URL
+        const API_BASE = window.location.origin.includes('replit') ? 
+            `${window.location.origin.replace(':5000', ':3000')}` : 
+            'http://localhost:3000';
         
         // App State
         let currentSession = null;
@@ -561,20 +563,29 @@
             const text = document.getElementById('connectionText');
             
             try {
+                // Try direct API call first (works via curl and direct browser access)
                 const response = await fetch(`${API_BASE}/health`, {
+                    method: 'GET',
+                    mode: 'no-cors'  // Bypass CORS for testing
+                });
+                
+                // If no-cors, we can't read response, so try a secondary test
+                const apiTest = await fetch(`${API_BASE}/api/subjects`, {
                     method: 'GET',
                     mode: 'cors',
                     headers: {
                         'Accept': 'application/json'
                     }
                 });
-                const data = await response.json();
                 
-                if (response.ok && data.status === 'OK') {
-                    dot.classList.remove('disconnected');
-                    text.textContent = 'Connected';
-                    console.log('Backend connection successful');
-                    return true;
+                if (apiTest.ok) {
+                    const data = await apiTest.json();
+                    if (data.success) {
+                        dot.classList.remove('disconnected');
+                        text.textContent = 'Connected';
+                        console.log('Backend connection successful');
+                        return true;
+                    }
                 }
             } catch (error) {
                 console.error('Connection failed:', error);
