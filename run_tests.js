@@ -226,7 +226,7 @@ async function runFrontendTests() {
             if (response.statusCode !== 200) {
                 throw new Error(`Expected 200, got ${response.statusCode}`);
             }
-            if (!response.rawData.includes('<html>')) {
+            if (!response.rawData.toLowerCase().includes('<!doctype html') && !response.rawData.toLowerCase().includes('<html')) {
                 throw new Error('Response is not valid HTML');
             }
             if (response.rawData.length < 1000) {

@@ -561,12 +561,20 @@
             const text = document.getElementById('connectionText');
             
             try {
-                const response = await fetch(`http://localhost:3000/health`);
+                const response = await fetch(`http://localhost:3000/health`, {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
                 const data = await response.json();
                 
-                if (response.ok) {
+                if (response.ok && data.status === 'OK') {
                     dot.classList.remove('disconnected');
                     text.textContent = 'Connected';
+                    console.log('Backend connection successful');
                     return true;
                 }
             } catch (error) {
@@ -584,7 +592,14 @@
             const totalQuestionsEl = document.getElementById('totalQuestions');
             
             try {
-                const response = await fetch(`${API_BASE}/subjects`);
+                const response = await fetch(`${API_BASE}/api/subjects`, {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
                 const data = await response.json();
                 
                 if (response.ok && data.success) {
@@ -592,13 +607,17 @@
                     totalQuestionsEl.textContent = totalQuestions.toLocaleString();
                     
                     displaySubjects(data.data);
-                } else {
-                    throw new Error('Failed to load subjects');
+                    console.log('Subjects loaded successfully from database');
+                    return;
                 }
             } catch (error) {
                 console.error('Error loading subjects:', error);
-                displaySubjects(); // Show default subjects
             }
+            
+            // Fallback to default subjects if API fails
+            console.log('Using default subjects (offline mode)');
+            totalQuestionsEl.textContent = '400+';
+            displaySubjects();
         }
 
         function displaySubjects(apiSubjects = null) {
