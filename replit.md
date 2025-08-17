@@ -8,6 +8,15 @@ ExamCoach is a cross-platform mobile application (Android & iOS) built with Flut
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+**August 17, 2025**
+- ✅ Successfully debugged and fixed Flutter web app deployment issues
+- ✅ Resolved Flutter SDK Git repository configuration problems  
+- ✅ Built and deployed working Flutter web application on port 5000
+- ✅ Confirmed app functionality with working counter button and proper ExamCoach branding
+- ✅ App is now accessible and fully functional for further development
+
 ## System Architecture
 
 ### Frontend Architecture (Flutter)
