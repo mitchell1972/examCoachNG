@@ -1,4 +1,4 @@
-modules = ["flutter"]
+modules = ["flutter", "python-3.11"]
 [agent]
 expertMode = true
 
@@ -27,7 +27,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "export PATH=\"$PWD/flutter/bin:$PATH\" && flutter pub get && flutter run -d web-server --web-port=5000 --web-hostname=0.0.0.0"
+args = "cd build/web && python3 -m http.server 5000"
 waitForPort = 5000
 
 [[ports]]
