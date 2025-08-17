@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>ExamCoach</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>examcoach_app</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	
+	<!-- Network Configuration -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>repl.co</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSExceptionMinimumTLSVersion</key>
+				<string>TLSv1.0</string>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+	
+	<!-- Deep Link Support -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>examcoach.deep.link</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>examcoach</string>
+			</array>
+		</dict>
+	</array>
+	
+	<!-- Permissions -->
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs access to camera to capture images for profile and feedback.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs access to photo library to select images for profile and feedback.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs access to microphone for voice feedback and audio practice.</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>This app uses notifications to remind you about daily practice and study sessions.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app may use location to provide relevant educational content and analytics.</string>
+	
+	<!-- Firebase Configuration -->
+	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
+	<true/>
+	<key>GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED</key>
+	<true/>
+	
+	<!-- Background Modes -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+		<string>background-task</string>
+	</array>
+	
+	<!-- Required device capabilities -->
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>arm64</string>
+	</array>
+	
+	<!-- Minimum iOS version -->
+	<key>MinimumOSVersion</key>
+	<string>12.0</string>
+	
+	<!-- iTunes file sharing -->
+	<key>UIFileSharingEnabled</key>
+	<false/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<false/>
+</dict>
+</plist>

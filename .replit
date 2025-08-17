@@ -1,2 +1,30 @@
+modules = ["flutter"]
 [agent]
 expertMode = true
+
+[nix]
+channel = "stable-25_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Flutter App"
+
+[[workflows.workflow]]
+name = "Flutter App"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "flutter pub get && flutter run --web-port=5000 --web-hostname=0.0.0.0 --dart-define=API_BASE_URL=https://examcoach-backend.repl.co --dart-define=FLAVOR=dev"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"

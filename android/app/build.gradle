@@ -1,0 +1,166 @@
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+
+// Apply the Google Services plugin for Firebase
+apply plugin: 'com.google.gms.google-services'
+
+android {
+    namespace "com.examcoach.app"
+    compileSdkVersion flutter.compileSdkVersion
+    ndkVersion flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    defaultConfig {
+        applicationId "com.examcoach.app"
+        minSdkVersion 21
+        targetSdkVersion flutter.targetSdkVersion
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+        
+        // Multiдекс support
+        multiDexEnabled true
+        
+        // Proguard
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            // Signing config will be added later for production
+            signingConfig signingConfigs.debug
+            
+            // Enable code shrinking, obfuscation, and optimization
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            
+            // Disable debugging for release builds
+            debuggable false
+            
+            // Build configuration fields
+            buildConfigField "String", "API_BASE_URL", '"https://examcoach-backend.repl.co"'
+            buildConfigField "String", "FLAVOR", '"prod"'
+        }
+        
+        debug {
+            debuggable true
+            minifyEnabled false
+            shrinkResources false
+            
+            // Build configuration fields for debug
+            buildConfigField "String", "API_BASE_URL", '"https://examcoach-backend-dev.repl.co"'
+            buildConfigField "String", "FLAVOR", '"dev"'
+            
+            // Add debug suffix to application ID to allow side-by-side installation
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+        }
+    }
+    
+    // Product flavors for different environments
+    flavorDimensions "environment"
+    productFlavors {
+        dev {
+            dimension "environment"
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+            resValue "string", "app_name", "ExamCoach Dev"
+        }
+        
+        staging {
+            dimension "environment"
+            applicationIdSuffix ".staging"
+            versionNameSuffix "-staging"
+            resValue "string", "app_name", "ExamCoach Staging"
+        }
+        
+        prod {
+            dimension "environment"
+            resValue "string", "app_name", "ExamCoach"
+        }
+    }
+    
+    // Lint options
+    lintOptions {
+        disable 'InvalidPackage'
+        checkReleaseBuilds false
+    }
+    
+    // Packaging options
+    packagingOptions {
+        pickFirst '**/libc++_shared.so'
+        pickFirst '**/libjsc.so'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    
+    // Firebase BOM - manages all Firebase library versions
+    implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    
+    // Work Manager for background tasks
+    implementation 'androidx.work:work-runtime-ktx:2.9.0'
+    
+    // Multidex support
+    implementation 'androidx.multidex:multidex:2.0.1'
+    
+    // Support libraries
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.lifecycle:lifecycle-process:2.7.0'
+    
+    // Network security for HTTPS
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+    
+    // Local notifications
+    implementation 'androidx.work:work-runtime:2.9.0'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+}

@@ -1,0 +1,101 @@
+name: examcoach_app
+description: A comprehensive Flutter-based exam preparation app
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+  flutter: ">=3.19.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI
+  cupertino_icons: ^1.0.6
+  flutter_svg: ^2.0.10+1
+
+  # State Management
+  hooks_riverpod: ^2.5.1
+  flutter_hooks: ^0.20.5
+
+  # Navigation
+  go_router: ^14.2.0
+
+  # HTTP & API
+  dio: ^5.5.0
+  retrofit: ^4.1.0
+
+  # Local Database
+  drift: ^2.18.0
+  sqlite3_flutter_libs: ^0.5.24
+  path_provider: ^2.1.4
+  path: ^1.9.0
+
+  # Local Storage
+  shared_preferences: ^2.2.3
+  flutter_secure_storage: ^9.2.2
+
+  # Firebase
+  firebase_core: ^3.4.0
+  firebase_messaging: ^15.1.0
+  firebase_analytics: ^11.3.3
+
+  # Notifications
+  flutter_local_notifications: ^17.2.1
+
+  # Connectivity
+  connectivity_plus: ^6.0.3
+
+  # Models & Serialization
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+
+  # UI Components
+  fl_chart: ^0.68.0
+
+  # Utilities
+  url_launcher: ^6.3.0
+  package_info_plus: ^8.0.1
+  uni_links: ^0.5.1
+
+  # WebView & Payments
+  webview_flutter: ^4.8.0
+  in_app_purchase: ^3.2.0
+
+  # Image Loading
+  cached_network_image: ^3.3.1
+
+  # Utils
+  intl: ^0.19.0
+  uuid: ^4.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # Build Runner & Code Generation
+  build_runner: ^2.4.11
+  freezed: ^2.5.7
+  json_serializable: ^6.8.0
+  drift_dev: ^2.18.0
+  retrofit_generator: ^8.1.0
+
+  # Linting
+  flutter_lints: ^4.0.0
+
+  # Testing
+  mocktail: ^1.0.4
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_icon.png"

@@ -1,0 +1,73 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="240" fill="#2563EB"/>
+  <circle cx="256" cy="256" r="240" fill="url(#gradient)" opacity="0.8"/>
+  
+  <!-- Graduation Cap -->
+  <g transform="translate(128, 160)">
+    <!-- Cap Base -->
+    <path d="M128 64L256 32L256 96L128 128L0 96L0 32L128 64Z" fill="#FFFFFF"/>
+    <path d="M128 64L256 32L256 48L128 80L0 48L0 32L128 64Z" fill="#F1F5F9"/>
+    
+    <!-- Cap Top -->
+    <ellipse cx="128" cy="64" rx="128" ry="16" fill="#FFFFFF"/>
+    <ellipse cx="128" cy="60" rx="128" ry="16" fill="#E2E8F0"/>
+    
+    <!-- Tassel -->
+    <rect x="240" y="32" width="4" height="32" fill="#FBBF24"/>
+    <circle cx="242" cy="66" r="6" fill="#F59E0B"/>
+    <path d="M236 72L248 72L248 76L246 80L244 84L242 88L240 84L238 80L236 76Z" fill="#F59E0B"/>
+  </g>
+  
+  <!-- Book -->
+  <g transform="translate(160, 280)">
+    <!-- Book Cover -->
+    <rect x="0" y="0" width="192" height="144" rx="8" fill="#FFFFFF"/>
+    <rect x="8" y="8" width="176" height="128" rx="4" fill="#F8FAFC"/>
+    
+    <!-- Book Spine -->
+    <rect x="0" y="0" width="16" height="144" rx="8" fill="#E2E8F0"/>
+    
+    <!-- Pages -->
+    <rect x="24" y="24" width="144" height="4" fill="#2563EB" opacity="0.6"/>
+    <rect x="24" y="36" width="120" height="4" fill="#2563EB" opacity="0.4"/>
+    <rect x="24" y="48" width="136" height="4" fill="#2563EB" opacity="0.4"/>
+    <rect x="24" y="60" width="112" height="4" fill="#2563EB" opacity="0.4"/>
+    <rect x="24" y="72" width="128" height="4" fill="#2563EB" opacity="0.4"/>
+    <rect x="24" y="84" width="104" height="4" fill="#2563EB" opacity="0.4"/>
+    <rect x="24" y="96" width="140" height="4" fill="#2563EB" opacity="0.4"/>
+    <rect x="24" y="108" width="116" height="4" fill="#2563EB" opacity="0.4"/>
+  </g>
+  
+  <!-- Pencil -->
+  <g transform="translate(340, 200) rotate(45)">
+    <!-- Pencil Body -->
+    <rect x="0" y="0" width="8" height="80" fill="#FBBF24"/>
+    <rect x="0" y="0" width="4" height="80" fill="#F59E0B"/>
+    
+    <!-- Pencil Tip -->
+    <polygon points="0,80 4,88 8,80" fill="#DC2626"/>
+    
+    <!-- Eraser -->
+    <rect x="0" y="-8" width="8" height="8" fill="#EF4444"/>
+    <rect x="0" y="-10" width="8" height="2" fill="#DC2626"/>
+  </g>
+  
+  <!-- Light Bulb (Knowledge/Ideas) -->
+  <g transform="translate(400, 160)">
+    <!-- Bulb -->
+    <circle cx="16" cy="24" r="16" fill="#FBBF24" opacity="0.8"/>
+    <path d="M16 8C22.627 8 28 13.373 28 20C28 23.314 26.314 26.314 23.657 28.242L23.657 32C23.657 33.105 22.762 34 21.657 34L10.343 34C9.238 34 8.343 33.105 8.343 32L8.343 28.242C5.686 26.314 4 23.314 4 20C4 13.373 9.373 8 16 8Z" fill="#FFFFFF"/>
+    
+    <!-- Bulb Base -->
+    <rect x="10" y="34" width="12" height="4" rx="2" fill="#64748B"/>
+  </g>
+  
+  <!-- Gradient Definition -->
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
