@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExamCoach - JAMB Practice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .subject-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 3px solid transparent;
+        }
+        .subject-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        .subject-card.math { border-color: #2196F3; }
+        .subject-card.english { border-color: #4CAF50; }
+        .subject-card.physics { border-color: #FF9800; }
+        .subject-card.chemistry { border-color: #9C27B0; }
+        
+        .icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        .quiz-container {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #2196F3;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .question-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #2196F3;
+        }
+        .option {
+            background: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+        }
+        .option:hover {
+            border-color: #2196F3;
+            background: #f0f8ff;
+        }
+        .option.selected {
+            border-color: #2196F3;
+            background: #e3f2fd;
+        }
+        .option.correct {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+        }
+        .option.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        .option-letter {
+            background: #2196F3;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        .btn {
+            background: #2196F3;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #1976D2;
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .result-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .result-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎓 ExamCoach JAMB Practice</h1>
+        <p>Practice JAMB questions and improve your scores</p>
+    </div>
+
+    <div id="homeScreen">
+        <div class="subject-grid">
+            <div class="subject-card math" onclick="startQuiz('Mathematics')">
+                <div class="icon">📊</div>
+                <h3>Mathematics</h3>
+                <p>Algebra, Geometry, Statistics</p>
+            </div>
+            <div class="subject-card english" onclick="startQuiz('English')">
+                <div class="icon">📚</div>
+                <h3>English Language</h3>
+                <p>Grammar, Comprehension, Literature</p>
+            </div>
+            <div class="subject-card physics" onclick="startQuiz('Physics')">
+                <div class="icon">🔬</div>
+                <h3>Physics</h3>
+                <p>Mechanics, Waves, Electricity</p>
+            </div>
+            <div class="subject-card chemistry" onclick="startQuiz('Chemistry')">
+                <div class="icon">🧪</div>
+                <h3>Chemistry</h3>
+                <p>Organic, Inorganic, Physical</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="quizScreen" class="quiz-container">
+        <div class="stats">
+            <span id="questionCounter">Question 1 of 3</span>
+            <span id="scoreCounter">Score: 0</span>
+        </div>
+        
+        <div class="progress-bar">
+            <div id="progressFill" class="progress-fill" style="width: 33%"></div>
+        </div>
+        
+        <div id="questionCard" class="question-card">
+            <h3 id="questionText">Loading question...</h3>
+        </div>
+        
+        <div id="optionsContainer">
+            <!-- Options will be inserted here -->
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <button id="nextBtn" class="btn" onclick="nextQuestion()" disabled>Next Question</button>
+            <button class="btn" onclick="backToHome()" style="background: #666;">Back to Home</button>
+        </div>
+    </div>
+
+    <div id="resultModal" class="result-modal">
+        <div class="result-content">
+            <h2>🎉 Quiz Completed!</h2>
+            <div id="resultText"></div>
+            <div style="margin-top: 30px;">
+                <button class="btn" onclick="restartQuiz()">Try Again</button>
+                <button class="btn" onclick="backToHome()" style="background: #666;">Back to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = {
+            'Mathematics': [
+                {
+                    question: 'If 2x + 3 = 7, what is the value of x?',
+                    options: ['1', '2', '3', '4'],
+                    correct: 1
+                },
+                {
+                    question: 'What is the square root of 144?',
+                    options: ['10', '11', '12', '13'],
+                    correct: 2
+                },
+                {
+                    question: 'Solve for y: 3y - 6 = 15',
+                    options: ['5', '6', '7', '8'],
+                    correct: 2
+                }
+            ],
+            'English': [
+                {
+                    question: 'Choose the correct spelling:',
+                    options: ['Recieve', 'Receive', 'Receeve', 'Recive'],
+                    correct: 1
+                },
+                {
+                    question: 'What is the plural of "child"?',
+                    options: ['childs', 'children', 'childes', 'child'],
+                    correct: 1
+                },
+                {
+                    question: 'Choose the synonym for "happy":',
+                    options: ['sad', 'joyful', 'angry', 'tired'],
+                    correct: 1
+                }
+            ],
+            'Physics': [
+                {
+                    question: 'What is the unit of force?',
+                    options: ['Joule', 'Newton', 'Watt', 'Volt'],
+                    correct: 1
+                },
+                {
+                    question: 'What is the acceleration due to gravity on Earth?',
+                    options: ['9.8 m/s²', '10 m/s²', '8.9 m/s²', '11 m/s²'],
+                    correct: 0
+                },
+                {
+                    question: 'Light travels fastest in:',
+                    options: ['water', 'glass', 'vacuum', 'air'],
+                    correct: 2
+                }
+            ],
+            'Chemistry': [
+                {
+                    question: 'What is the chemical symbol for water?',
+                    options: ['H2O', 'CO2', 'NaCl', 'O2'],
+                    correct: 0
+                },
+                {
+                    question: 'How many protons does carbon have?',
+                    options: ['4', '6', '8', '12'],
+                    correct: 1
+                },
+                {
+                    question: 'What is the most abundant gas in Earth\'s atmosphere?',
+                    options: ['Oxygen', 'Carbon dioxide', 'Nitrogen', 'Hydrogen'],
+                    correct: 2
+                }
+            ]
+        };
+
+        let currentSubject = '';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedAnswer = -1;
+        let answered = false;
+
+        function startQuiz(subject) {
+            currentSubject = subject;
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = -1;
+            answered = false;
+            
+            document.getElementById('homeScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const questionData = questions[currentSubject][currentQuestionIndex];
+            const totalQuestions = questions[currentSubject].length;
+            
+            document.getElementById('questionCounter').textContent = 
+                `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
+            document.getElementById('scoreCounter').textContent = `Score: ${score}`;
+            document.getElementById('questionText').textContent = questionData.question;
+            
+            const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            questionData.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.onclick = () => selectAnswer(index);
+                optionElement.innerHTML = `
+                    <div class="option-letter">${String.fromCharCode(65 + index)}</div>
+                    <span>${option}</span>
+                `;
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            document.getElementById('nextBtn').disabled = true;
+            answered = false;
+        }
+
+        function selectAnswer(answerIndex) {
+            if (answered) return;
+            
+            selectedAnswer = answerIndex;
+            answered = true;
+            
+            const questionData = questions[currentSubject][currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach((option, index) => {
+                if (index === questionData.correct) {
+                    option.classList.add('correct');
+                } else if (index === answerIndex && index !== questionData.correct) {
+                    option.classList.add('incorrect');
+                }
+                if (index === answerIndex) {
+                    option.classList.add('selected');
+                }
+            });
+            
+            if (answerIndex === questionData.correct) {
+                score++;
+                document.getElementById('scoreCounter').textContent = `Score: ${score}`;
+            }
+            
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions[currentSubject].length - 1) {
+                currentQuestionIndex++;
+                selectedAnswer = -1;
+                answered = false;
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            const totalQuestions = questions[currentSubject].length;
+            const percentage = Math.round((score / totalQuestions) * 100);
+            
+            document.getElementById('resultText').innerHTML = `
+                <p style="font-size: 1.2em; margin: 20px 0;">
+                    Your score: <strong>${score}/${totalQuestions}</strong><br>
+                    Percentage: <strong>${percentage}%</strong>
+                </p>
+                <p style="color: ${percentage >= 70 ? '#4CAF50' : percentage >= 50 ? '#FF9800' : '#f44336'}; font-weight: bold;">
+                    ${percentage >= 70 ? 'Excellent work! 🎉' : 
+                      percentage >= 50 ? 'Good job! Keep practicing! 👍' : 
+                      'Keep studying and try again! 💪'}
+                </p>
+            `;
+            
+            document.getElementById('resultModal').style.display = 'flex';
+        }
+
+        function restartQuiz() {
+            document.getElementById('resultModal').style.display = 'none';
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = -1;
+            answered = false;
+            showQuestion();
+        }
+
+        function backToHome() {
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('resultModal').style.display = 'none';
+            document.getElementById('homeScreen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
