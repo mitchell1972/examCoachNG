@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExamCoach Test Suite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .test-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .section-body {
+            padding: 20px;
+        }
+
+        .test-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #a0aec0;
+            color: white;
+        }
+
+        .test-results {
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .test-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .test-item:last-child {
+            border-bottom: none;
+        }
+
+        .test-name {
+            font-weight: 500;
+        }
+
+        .test-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #f7fafc;
+            color: #4a5568;
+        }
+
+        .status-running {
+            background: #fff5f5;
+            color: #c53030;
+            animation: pulse 2s infinite;
+        }
+
+        .status-passed {
+            background: #f0fff4;
+            color: #276749;
+        }
+
+        .status-failed {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .test-details {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .summary {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+
+        .summary-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .summary-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .summary-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .log-area {
+            background: #1a202c;
+            color: #e2e8f0;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+        }
+
+        .log-timestamp {
+            color: #718096;
+        }
+
+        .log-error {
+            color: #fed7d7;
+        }
+
+        .log-success {
+            color: #9ae6b4;
+        }
+
+        .log-info {
+            color: #90cdf4;
+        }
+
+        .performance-chart {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .chart-label {
+            width: 150px;
+            font-size: 0.9em;
+        }
+
+        .chart-value {
+            flex: 1;
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chart-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        .chart-text {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8em;
+            color: #4a5568;
+        }
+
+        .integration-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .flow-step {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .flow-step.active {
+            border-color: #667eea;
+            background: #f7faff;
+        }
+
+        .flow-step.completed {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .flow-step.failed {
+            border-color: #f56565;
+            background: #fed7d7;
+        }
+
+        .step-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .step-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .step-status {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .test-controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧪 ExamCoach Test Suite</h1>
+        <p>Comprehensive Integration, API, UI & End-to-End Testing</p>
+    </div>
+
+    <div class="container">
+        <!-- Test Overview -->
+        <div class="test-section">
+            <div class="section-header">
+                <h2 class="section-title">Test Overview</h2>
+                <div>
+                    <span id="overallStatus" class="test-status status-pending">Ready</span>
+                </div>
+            </div>
+            <div class="section-body">
+                <div class="test-controls">
+                    <button class="btn btn-primary" onclick="runAllTests()">Run All Tests</button>
+                    <button class="btn btn-success" onclick="runIntegrationTests()">Integration Tests</button>
+                    <button class="btn btn-warning" onclick="runAPITests()">API Tests</button>
+                    <button class="btn btn-secondary" onclick="runUITests()">UI Tests</button>
+                    <button class="btn btn-danger" onclick="clearResults()">Clear Results</button>
+                </div>
+
+                <div class="summary">
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-number" id="totalTests">0</div>
+                            <div class="summary-label">Total Tests</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-number" id="passedTests">0</div>
+                            <div class="summary-label">Passed</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-number" id="failedTests">0</div>
+                            <div class="summary-label">Failed</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-number" id="testDuration">0s</div>
+                            <div class="summary-label">Duration</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integration Flow -->
+        <div class="test-section">
+            <div class="section-header">
+                <h2 class="section-title">Integration Flow</h2>
+            </div>
+            <div class="section-body">
+                <div class="integration-flow">
+                    <div class="flow-step" id="step-backend">
+                        <div class="step-icon">🖥️</div>
+                        <div class="step-title">Backend API</div>
+                        <div class="step-status">Port 3000</div>
+                    </div>
+                    <div class="flow-step" id="step-database">
+                        <div class="step-icon">🗄️</div>
+                        <div class="step-title">PostgreSQL</div>
+                        <div class="step-status">Database</div>
+                    </div>
+                    <div class="flow-step" id="step-frontend">
+                        <div class="step-icon">🌐</div>
+                        <div class="step-title">Frontend Apps</div>
+                        <div class="step-status">Port 5000</div>
+                    </div>
+                    <div class="flow-step" id="step-integration">
+                        <div class="step-icon">🔗</div>
+                        <div class="step-title">Integration</div>
+                        <div class="step-status">Full Stack</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Tests -->
+        <div class="test-section">
+            <div class="section-header">
+                <h2 class="section-title">API Tests</h2>
+                <button class="btn btn-primary" onclick="runAPITests()">Run API Tests</button>
+            </div>
+            <div class="section-body">
+                <div class="test-results" id="apiTestResults">
+                    <!-- API test results will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- UI Tests -->
+        <div class="test-section">
+            <div class="section-header">
+                <h2 class="section-title">UI Tests</h2>
+                <button class="btn btn-primary" onclick="runUITests()">Run UI Tests</button>
+            </div>
+            <div class="section-body">
+                <div class="test-results" id="uiTestResults">
+                    <!-- UI test results will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Integration Tests -->
+        <div class="test-section">
+            <div class="section-header">
+                <h2 class="section-title">Integration Tests</h2>
+                <button class="btn btn-primary" onclick="runIntegrationTests()">Run Integration Tests</button>
+            </div>
+            <div class="section-body">
+                <div class="test-results" id="integrationTestResults">
+                    <!-- Integration test results will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Tests -->
+        <div class="test-section">
+            <div class="section-header">
+                <h2 class="section-title">Performance Tests</h2>
+                <button class="btn btn-primary" onclick="runPerformanceTests()">Run Performance Tests</button>
+            </div>
+            <div class="section-body">
+                <div class="performance-chart" id="performanceChart">
+                    <!-- Performance results will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Logs -->
+        <div class="test-section">
+            <div class="section-header">
+                <h2 class="section-title">Test Logs</h2>
+                <button class="btn btn-secondary" onclick="clearLogs()">Clear Logs</button>
+            </div>
+            <div class="section-body">
+                <div class="log-area" id="testLogs">
+                    <div class="log-entry">
+                        <span class="log-timestamp">[Ready]</span>
+                        <span class="log-info">Test suite initialized. Ready to run tests.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test Configuration
+        const API_BASE = 'http://localhost:3000';
+        const FRONTEND_BASE = 'http://localhost:5000';
+        
+        // Test State
+        let testResults = {
+            api: [],
+            ui: [],
+            integration: [],
+            performance: []
+        };
+        
+        let testStats = {
+            total: 0,
+            passed: 0,
+            failed: 0,
+            startTime: null
+        };
+
+        // Logging Functions
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logArea = document.getElementById('testLogs');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}]</span>
+                <span class="log-${type}">${message}</span>
+            `;
+            logArea.appendChild(logEntry);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('testLogs').innerHTML = '';
+        }
+
+        // Test Result Functions
+        function addTestResult(category, name, status, details = '', duration = 0) {
+            const result = { name, status, details, duration, timestamp: Date.now() };
+            testResults[category].push(result);
+            
+            // Update stats
+            testStats.total++;
+            if (status === 'passed') testStats.passed++;
+            if (status === 'failed') testStats.failed++;
+            
+            updateSummary();
+            updateTestDisplay(category);
+            
+            log(`${name}: ${status.toUpperCase()}${details ? ` - ${details}` : ''}`, 
+                status === 'passed' ? 'success' : status === 'failed' ? 'error' : 'info');
+        }
+
+        function updateSummary() {
+            document.getElementById('totalTests').textContent = testStats.total;
+            document.getElementById('passedTests').textContent = testStats.passed;
+            document.getElementById('failedTests').textContent = testStats.failed;
+            
+            if (testStats.startTime) {
+                const duration = Math.round((Date.now() - testStats.startTime) / 1000);
+                document.getElementById('testDuration').textContent = duration + 's';
+            }
+        }
+
+        function updateTestDisplay(category) {
+            const container = document.getElementById(category + 'TestResults');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            testResults[category].forEach(test => {
+                const testItem = document.createElement('div');
+                testItem.className = 'test-item';
+                testItem.innerHTML = `
+                    <div>
+                        <div class="test-name">${test.name}</div>
+                        ${test.details ? `<div class="test-details">${test.details}</div>` : ''}
+                    </div>
+                    <div class="test-status status-${test.status}">${test.status.toUpperCase()}</div>
+                `;
+                container.appendChild(testItem);
+            });
+        }
+
+        // API Test Functions
+        async function runAPITests() {
+            log('Starting API Tests...', 'info');
+            document.getElementById('step-backend').className = 'flow-step active';
+            
+            const tests = [
+                { name: 'Backend Health Check', endpoint: '/health', method: 'GET' },
+                { name: 'Get Subjects', endpoint: '/api/subjects', method: 'GET' },
+                { name: 'Get Math Questions', endpoint: '/api/questions/MTH?limit=5', method: 'GET' },
+                { name: 'Get English Questions', endpoint: '/api/questions/ENG?limit=3', method: 'GET' },
+                { name: 'Create Session', endpoint: '/api/sessions/create', method: 'POST', body: { subjectCode: 'MTH', questionCount: 10 } },
+                { name: 'Get Analytics', endpoint: '/api/analytics', method: 'GET' }
+            ];
+
+            for (const test of tests) {
+                await runAPITest(test);
+                await sleep(500); // Small delay between tests
+            }
+            
+            document.getElementById('step-backend').className = 'flow-step completed';
+            log('API Tests completed', 'success');
+        }
+
+        async function runAPITest(test) {
+            try {
+                const options = {
+                    method: test.method,
+                    headers: { 'Content-Type': 'application/json' }
+                };
+                
+                if (test.body) {
+                    options.body = JSON.stringify(test.body);
+                }
+                
+                const startTime = Date.now();
+                const response = await fetch(`${API_BASE}${test.endpoint}`, options);
+                const duration = Date.now() - startTime;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addTestResult('api', test.name, 'passed', 
+                        `${response.status} - ${duration}ms`, duration);
+                } else {
+                    addTestResult('api', test.name, 'failed', 
+                        `HTTP ${response.status}`, duration);
+                }
+            } catch (error) {
+                addTestResult('api', test.name, 'failed', error.message);
+            }
+        }
+
+        // UI Test Functions
+        async function runUITests() {
+            log('Starting UI Tests...', 'info');
+            document.getElementById('step-frontend').className = 'flow-step active';
+            
+            const tests = [
+                { name: 'Static App Accessibility', url: '/jamb_test.html' },
+                { name: 'Database App Accessibility', url: '/jamb_api_test.html' },
+                { name: 'Admin Dashboard Accessibility', url: '/admin_dashboard.html' },
+                { name: 'Phone App Accessibility', url: '/phone_app.html' },
+                { name: 'Main Index Page', url: '/index.html' }
+            ];
+
+            for (const test of tests) {
+                await runUITest(test);
+                await sleep(300);
+            }
+            
+            document.getElementById('step-frontend').className = 'flow-step completed';
+            log('UI Tests completed', 'success');
+        }
+
+        async function runUITest(test) {
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${FRONTEND_BASE}${test.url}`);
+                const duration = Date.now() - startTime;
+                
+                if (response.ok) {
+                    const html = await response.text();
+                    const hasTitle = html.includes('<title>');
+                    const hasContent = html.length > 1000;
+                    
+                    if (hasTitle && hasContent) {
+                        addTestResult('ui', test.name, 'passed', 
+                            `${response.status} - ${duration}ms - ${(html.length/1024).toFixed(1)}KB`, duration);
+                    } else {
+                        addTestResult('ui', test.name, 'failed', 
+                            `Content validation failed`, duration);
+                    }
+                } else {
+                    addTestResult('ui', test.name, 'failed', 
+                        `HTTP ${response.status}`, duration);
+                }
+            } catch (error) {
+                addTestResult('ui', test.name, 'failed', error.message);
+            }
+        }
+
+        // Integration Test Functions
+        async function runIntegrationTests() {
+            log('Starting Integration Tests...', 'info');
+            document.getElementById('step-integration').className = 'flow-step active';
+            
+            const tests = [
+                { name: 'Backend-Database Connection', test: testDatabaseConnection },
+                { name: 'Frontend-Backend API Integration', test: testFrontendBackendIntegration },
+                { name: 'Question Loading Flow', test: testQuestionLoadingFlow },
+                { name: 'Session Creation Flow', test: testSessionCreationFlow },
+                { name: 'Answer Submission Flow', test: testAnswerSubmissionFlow },
+                { name: 'Cross-Origin Resource Sharing (CORS)', test: testCORSConfiguration },
+                { name: 'End-to-End Quiz Flow', test: testEndToEndQuizFlow }
+            ];
+
+            for (const test of tests) {
+                await test.test(test.name);
+                await sleep(500);
+            }
+            
+            document.getElementById('step-integration').className = 'flow-step completed';
+            log('Integration Tests completed', 'success');
+        }
+
+        async function testDatabaseConnection(testName) {
+            try {
+                const response = await fetch(`${API_BASE}/api/questions/MTH?limit=1`);
+                const data = await response.json();
+                
+                if (response.ok && data.success && data.data.length > 0) {
+                    addTestResult('integration', testName, 'passed', 
+                        'Database connected and returning questions');
+                } else {
+                    addTestResult('integration', testName, 'failed', 
+                        'No questions returned from database');
+                }
+            } catch (error) {
+                addTestResult('integration', testName, 'failed', error.message);
+            }
+        }
+
+        async function testFrontendBackendIntegration(testName) {
+            try {
+                // Test if frontend can reach backend
+                const response = await fetch(`${API_BASE}/health`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    addTestResult('integration', testName, 'passed', 
+                        'Frontend can communicate with backend API');
+                } else {
+                    addTestResult('integration', testName, 'failed', 
+                        'Frontend cannot reach backend');
+                }
+            } catch (error) {
+                addTestResult('integration', testName, 'failed', 
+                    'CORS or network error: ' + error.message);
+            }
+        }
+
+        async function testQuestionLoadingFlow(testName) {
+            try {
+                const subjects = ['MTH', 'ENG', 'PHY', 'CHM'];
+                let totalQuestions = 0;
+                
+                for (const subject of subjects) {
+                    const response = await fetch(`${API_BASE}/api/questions/${subject}?limit=2`);
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success) {
+                        totalQuestions += data.data.length;
+                    }
+                }
+                
+                if (totalQuestions > 0) {
+                    addTestResult('integration', testName, 'passed', 
+                        `Loaded ${totalQuestions} questions across subjects`);
+                } else {
+                    addTestResult('integration', testName, 'failed', 
+                        'No questions loaded from any subject');
+                }
+            } catch (error) {
+                addTestResult('integration', testName, 'failed', error.message);
+            }
+        }
+
+        async function testSessionCreationFlow(testName) {
+            try {
+                const response = await fetch(`${API_BASE}/api/sessions/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subjectCode: 'MTH',
+                        questionCount: 5
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success && data.data.sessionId) {
+                    addTestResult('integration', testName, 'passed', 
+                        `Session created: ${data.data.sessionId}`);
+                    return data.data.sessionId;
+                } else {
+                    addTestResult('integration', testName, 'failed', 
+                        'Session creation failed');
+                    return null;
+                }
+            } catch (error) {
+                addTestResult('integration', testName, 'failed', error.message);
+                return null;
+            }
+        }
+
+        async function testAnswerSubmissionFlow(testName) {
+            try {
+                // First create a session
+                const sessionResponse = await fetch(`${API_BASE}/api/sessions/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subjectCode: 'MTH', questionCount: 1 })
+                });
+                
+                const sessionData = await sessionResponse.json();
+                if (!sessionData.success) throw new Error('Failed to create session');
+                
+                // Get a question
+                const questionResponse = await fetch(`${API_BASE}/api/questions/MTH?limit=1`);
+                const questionData = await questionResponse.json();
+                if (!questionData.success || questionData.data.length === 0) {
+                    throw new Error('No questions available');
+                }
+                
+                const question = questionData.data[0];
+                
+                // Submit answer
+                const answerResponse = await fetch(`${API_BASE}/api/sessions/answer`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId: sessionData.data.sessionId,
+                        questionId: question.id,
+                        chosenOption: 'A',
+                        timeSpentMs: 5000
+                    })
+                });
+                
+                const answerData = await answerResponse.json();
+                
+                if (answerResponse.ok && answerData.success) {
+                    addTestResult('integration', testName, 'passed', 
+                        `Answer submitted and processed`);
+                } else {
+                    addTestResult('integration', testName, 'failed', 
+                        'Answer submission failed');
+                }
+            } catch (error) {
+                addTestResult('integration', testName, 'failed', error.message);
+            }
+        }
+
+        async function testCORSConfiguration(testName) {
+            try {
+                const response = await fetch(`${API_BASE}/api/subjects`, {
+                    method: 'GET',
+                    mode: 'cors',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    addTestResult('integration', testName, 'passed', 
+                        'CORS properly configured for cross-origin requests');
+                } else {
+                    addTestResult('integration', testName, 'failed', 
+                        'CORS configuration issue');
+                }
+            } catch (error) {
+                if (error.message.includes('CORS')) {
+                    addTestResult('integration', testName, 'failed', 
+                        'CORS policy blocking requests');
+                } else {
+                    addTestResult('integration', testName, 'failed', error.message);
+                }
+            }
+        }
+
+        async function testEndToEndQuizFlow(testName) {
+            try {
+                // Full quiz simulation
+                log('Simulating complete quiz flow...', 'info');
+                
+                // 1. Create session
+                const sessionResponse = await fetch(`${API_BASE}/api/sessions/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subjectCode: 'MTH', questionCount: 3 })
+                });
+                const sessionData = await sessionResponse.json();
+                
+                // 2. Load questions
+                const questionResponse = await fetch(`${API_BASE}/api/questions/MTH?limit=3`);
+                const questionData = await questionResponse.json();
+                
+                // 3. Submit multiple answers
+                let answersSubmitted = 0;
+                for (const question of questionData.data.slice(0, 2)) {
+                    const answerResponse = await fetch(`${API_BASE}/api/sessions/answer`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            sessionId: sessionData.data.sessionId,
+                            questionId: question.id,
+                            chosenOption: question.correctOption, // Submit correct answer
+                            timeSpentMs: 3000 + Math.random() * 2000
+                        })
+                    });
+                    
+                    if (answerResponse.ok) answersSubmitted++;
+                    await sleep(100); // Simulate user think time
+                }
+                
+                // 4. Get results
+                const resultsResponse = await fetch(
+                    `${API_BASE}/api/sessions/${sessionData.data.sessionId}/results`
+                );
+                const resultsData = await resultsResponse.json();
+                
+                if (sessionData.success && questionData.success && 
+                    answersSubmitted > 0 && resultsResponse.ok) {
+                    addTestResult('integration', testName, 'passed', 
+                        `Complete quiz flow: ${answersSubmitted} answers submitted, ${resultsData.data?.percentage || 0}% score`);
+                } else {
+                    addTestResult('integration', testName, 'failed', 
+                        'Quiz flow incomplete');
+                }
+            } catch (error) {
+                addTestResult('integration', testName, 'failed', error.message);
+            }
+        }
+
+        // Performance Test Functions
+        async function runPerformanceTests() {
+            log('Starting Performance Tests...', 'info');
+            const chart = document.getElementById('performanceChart');
+            
+            const tests = [
+                { name: 'API Response Time', test: measureAPIPerformance },
+                { name: 'Question Loading Speed', test: measureQuestionLoadingSpeed },
+                { name: 'Database Query Performance', test: measureDatabasePerformance },
+                { name: 'Concurrent Users Simulation', test: measureConcurrentLoad }
+            ];
+
+            chart.innerHTML = '<h4>Running Performance Tests...</h4>';
+            
+            const results = {};
+            for (const test of tests) {
+                const result = await test.test();
+                results[test.name] = result;
+                await sleep(300);
+            }
+            
+            displayPerformanceResults(results);
+            log('Performance Tests completed', 'success');
+        }
+
+        async function measureAPIPerformance() {
+            const times = [];
+            const endpoints = ['/health', '/api/subjects', '/api/questions/MTH?limit=5'];
+            
+            for (let i = 0; i < 10; i++) {
+                const endpoint = endpoints[i % endpoints.length];
+                const start = performance.now();
+                
+                try {
+                    await fetch(`${API_BASE}${endpoint}`);
+                    times.push(performance.now() - start);
+                } catch (error) {
+                    times.push(5000); // 5s timeout penalty
+                }
+            }
+            
+            return {
+                avg: times.reduce((a, b) => a + b, 0) / times.length,
+                min: Math.min(...times),
+                max: Math.max(...times)
+            };
+        }
+
+        async function measureQuestionLoadingSpeed() {
+            const subjects = ['MTH', 'ENG', 'PHY', 'CHM'];
+            const times = [];
+            
+            for (const subject of subjects) {
+                const start = performance.now();
+                try {
+                    const response = await fetch(`${API_BASE}/api/questions/${subject}?limit=10`);
+                    await response.json();
+                    times.push(performance.now() - start);
+                } catch (error) {
+                    times.push(5000);
+                }
+            }
+            
+            return {
+                avg: times.reduce((a, b) => a + b, 0) / times.length,
+                min: Math.min(...times),
+                max: Math.max(...times)
+            };
+        }
+
+        async function measureDatabasePerformance() {
+            // Test various database operations
+            const operations = [
+                () => fetch(`${API_BASE}/api/questions/MTH?limit=1`),
+                () => fetch(`${API_BASE}/api/sessions/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subjectCode: 'MTH', questionCount: 5 })
+                }),
+                () => fetch(`${API_BASE}/api/analytics`)
+            ];
+            
+            const times = [];
+            for (const operation of operations) {
+                const start = performance.now();
+                try {
+                    await operation();
+                    times.push(performance.now() - start);
+                } catch (error) {
+                    times.push(5000);
+                }
+            }
+            
+            return {
+                avg: times.reduce((a, b) => a + b, 0) / times.length,
+                min: Math.min(...times),
+                max: Math.max(...times)
+            };
+        }
+
+        async function measureConcurrentLoad() {
+            // Simulate 5 concurrent users
+            const concurrentRequests = 5;
+            const promises = [];
+            
+            const start = performance.now();
+            
+            for (let i = 0; i < concurrentRequests; i++) {
+                promises.push(
+                    fetch(`${API_BASE}/api/questions/MTH?limit=3`)
+                        .catch(error => ({ error: true }))
+                );
+            }
+            
+            await Promise.all(promises);
+            const duration = performance.now() - start;
+            
+            return {
+                avg: duration / concurrentRequests,
+                min: duration / concurrentRequests,
+                max: duration
+            };
+        }
+
+        function displayPerformanceResults(results) {
+            const chart = document.getElementById('performanceChart');
+            let html = '<h4>Performance Results</h4>';
+            
+            Object.entries(results).forEach(([name, data]) => {
+                const avgTime = Math.round(data.avg);
+                const performance = Math.max(0, 100 - (avgTime / 50)); // Scale to 0-100
+                
+                html += `
+                    <div class="chart-bar">
+                        <div class="chart-label">${name}</div>
+                        <div class="chart-value">
+                            <div class="chart-fill" style="width: ${performance}%"></div>
+                            <div class="chart-text">${avgTime}ms</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            chart.innerHTML = html;
+        }
+
+        // Main Test Functions
+        async function runAllTests() {
+            clearResults();
+            testStats.startTime = Date.now();
+            testStats.total = 0;
+            testStats.passed = 0;
+            testStats.failed = 0;
+            
+            document.getElementById('overallStatus').className = 'test-status status-running';
+            document.getElementById('overallStatus').textContent = 'Running';
+            
+            log('Starting complete test suite...', 'info');
+            
+            await runAPITests();
+            await sleep(1000);
+            await runUITests();
+            await sleep(1000);
+            await runIntegrationTests();
+            await sleep(1000);
+            await runPerformanceTests();
+            
+            const successRate = ((testStats.passed / testStats.total) * 100).toFixed(1);
+            
+            if (testStats.failed === 0) {
+                document.getElementById('overallStatus').className = 'test-status status-passed';
+                document.getElementById('overallStatus').textContent = 'All Passed';
+                log(`All tests completed successfully! Success rate: ${successRate}%`, 'success');
+            } else {
+                document.getElementById('overallStatus').className = 'test-status status-failed';
+                document.getElementById('overallStatus').textContent = `${testStats.failed} Failed`;
+                log(`Tests completed with ${testStats.failed} failures. Success rate: ${successRate}%`, 'error');
+            }
+        }
+
+        function clearResults() {
+            testResults = { api: [], ui: [], integration: [], performance: [] };
+            testStats = { total: 0, passed: 0, failed: 0, startTime: null };
+            
+            ['api', 'ui', 'integration'].forEach(category => {
+                const container = document.getElementById(category + 'TestResults');
+                if (container) container.innerHTML = '';
+            });
+            
+            document.getElementById('performanceChart').innerHTML = '';
+            document.getElementById('overallStatus').className = 'test-status status-pending';
+            document.getElementById('overallStatus').textContent = 'Ready';
+            
+            // Reset flow steps
+            document.querySelectorAll('.flow-step').forEach(step => {
+                step.className = 'flow-step';
+            });
+            
+            updateSummary();
+            log('Test results cleared', 'info');
+        }
+
+        // Utility Functions
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            log('ExamCoach Test Suite loaded and ready', 'success');
+            log('Backend API: ' + API_BASE, 'info');
+            log('Frontend: ' + FRONTEND_BASE, 'info');
+        });
+    </script>
+</body>
+</html>

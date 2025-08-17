@@ -22,6 +22,10 @@ args = "JAMB Test App"
 task = "workflow.run"
 args = "ExamCoach Backend"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Test Runner"
+
 [[workflows.workflow]]
 name = "JAMB Test App"
 author = "agent"
@@ -42,6 +46,17 @@ author = "agent"
 task = "shell.exec"
 args = "cd server && npx tsx src/simple-app.ts"
 waitForPort = 3000
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Test Runner"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node run_tests.js"
 
 [workflows.workflow.metadata]
 outputType = "console"
