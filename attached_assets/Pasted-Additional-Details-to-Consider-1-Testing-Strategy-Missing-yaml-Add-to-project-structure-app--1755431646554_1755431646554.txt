@@ -1,0 +1,220 @@
+Additional Details to Consider:
+1. Testing Strategy (Missing)
+yaml# Add to project structure:
+app/
+├─ test/
+│  ├─ unit/           # Business logic tests
+│  ├─ widget/         # Widget tests
+│  └─ integration/    # E2E flows
+├─ test_driver/       # Integration test drivers
+Key test scenarios:
+
+Offline/online state transitions
+Payment flow interruptions
+Session recovery after crash
+Pack download failures/retries
+Timer persistence across app kills
+
+2. Performance Optimizations
+dart// Add to dependencies:
+cached_network_image: ^3.3.1
+flutter_cache_manager: ^3.3.2
+shimmer: ^3.0.0  # Loading skeletons
+
+// Image optimization:
+- Lazy load question images
+- Progressive JPEG for pack media
+- WebP support where possible
+- Pagination: Load questions in chunks of 20
+3. Data Sync & Conflict Resolution
+dart// Add conflict resolution strategy:
+class SyncConflictResolver {
+  // Server wins for: entitlements, pack versions
+  // Client wins for: attempts, session progress
+  // Merge strategy for: topic_stats (sum attempts, max accuracy)
+  
+  // Add sync_queue table:
+  class SyncQueue extends Table {
+    IntColumn get id => integer().autoIncrement()();
+    TextColumn get operation => text()(); // create|update|delete
+    TextColumn get entity => text()();    // attempt|session|stats
+    TextColumn get payload => text()();
+    IntColumn get retryCount => integer().withDefault(const Constant(0))();
+    DateTimeColumn get createdAt => dateTime()();
+  }
+}
+4. Enhanced Error Recovery
+dart// Add to error handling:
+class NetworkRetryPolicy {
+  static const maxRetries = 3;
+  static const baseDelay = Duration(seconds: 1);
+  static const maxDelay = Duration(seconds: 30);
+  
+  // Exponential backoff with jitter
+  // Different retry strategies for:
+  // - Auth endpoints (immediate)
+  // - Pack downloads (resumable)
+  // - Analytics (fire-and-forget)
+}
+
+// Add circuit breaker states:
+enum BackendHealth { healthy, degraded, offline }
+5. User Experience Enhancements
+dart// Onboarding improvements:
+- Skip option after 3 screens
+- Progress indicators
+- Sample question preview
+- Offline capability explanation
+
+// Study features:
+class StudyReminders extends Table {
+  TextColumn get id => text()();
+  TextColumn get type => text()(); // daily|weekly|custom
+  IntColumn get hour => integer()();
+  IntColumn get minute => integer()();
+  TextColumn get daysOfWeek => text()(); // JSON array
+  BoolColumn get enabled => boolean()();
+}
+
+// Gamification:
+class Achievements extends Table {
+  TextColumn get id => text()();
+  TextColumn get type => text()(); // streak|accuracy|speed|completion
+  IntColumn get threshold => integer()();
+  DateTimeColumn get unlockedAt => dateTime().nullable()();
+}
+6. Content Management
+dart// Version control for content:
+class ContentVersioning {
+  // Track minimum supported pack version
+  static const minPackVersion = 10;
+  
+  // Migration for outdated questions:
+  Future<void> migratePackFormat(Pack oldPack) async {
+    // Handle schema changes
+    // Update difficulty scales
+    // Remap syllabus nodes
+  }
+}
+
+// Content expiry:
+class PackExpiry {
+  static const Duration packLifetime = Duration(days: 180);
+  static const Duration cacheLifetime = Duration(days: 30);
+}
+7. Network Optimization
+dart// Add network quality detection:
+class NetworkQualityMonitor {
+  // Measure latency to backend
+  // Adjust sync batch sizes
+  // Switch between full/delta updates
+  // Compress request payloads
+}
+
+// Implement request coalescing:
+class RequestCoalescer {
+  // Batch multiple analytics events
+  // Combine attempt submissions
+  // Deduplicate pack checks
+}
+8. Accessibility (Missing)
+dart// Add semantic labels:
+Semantics(
+  label: 'Question ${index + 1} of $total',
+  hint: 'Double tap to read question',
+  child: QuestionCard(),
+)
+
+// Support:
+- Screen readers (TalkBack/VoiceOver)
+- Dynamic font sizing
+- High contrast mode
+- Reduced motion option
+- Minimum touch targets (48x48dp)
+9. Privacy & Compliance
+dart// Add privacy features:
+class PrivacySettings extends Table {
+  BoolColumn get analyticsEnabled => boolean().withDefault(const Constant(true))();
+  BoolColumn get crashReportingEnabled => boolean().withDefault(const Constant(true))();
+  DateTimeColumn get tosAcceptedAt => dateTime().nullable()();
+  DateTimeColumn get privacyPolicyAcceptedAt => dateTime().nullable()();
+}
+
+// GDPR/Data deletion:
+POST /me/delete → schedule account deletion
+GET /me/export → download all user data (JSON)
+10. Customer Support Integration
+dart// In-app support:
+- FAQ section (cached offline)
+- Contact form with screenshot attachment
+- WhatsApp/Email quick links
+- Feedback after each session
+- Bug report with device info auto-filled
+11. Advanced Analytics
+dart// Enhanced event tracking:
+- Funnel analysis (onboarding → first practice → payment)
+- Session recording (user consent required)
+- Heatmaps for question interactions
+- Time-to-first-value metrics
+- Churn prediction signals
+12. Database Migrations
+dart// Add to drift setup:
+@DriftDatabase(tables: [...], daos: [...])
+class AppDatabase extends _$AppDatabase {
+  @override
+  int get schemaVersion => 2; // Increment on schema changes
+  
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        // Add new columns with defaults
+        // Migrate data formats
+        // Clean orphaned records
+      }
+    },
+  );
+}
+13. Push Notification Categories
+json{
+  "categories": {
+    "daily_practice": {"actions": ["start_now", "snooze", "dismiss"]},
+    "streak_reminder": {"critical": true},
+    "new_content": {"badge_count": true},
+    "achievement": {"sound": "success.mp3"},
+    "payment": {"priority": "high"}
+  }
+}
+14. Development Tools
+yaml# Add dev dependencies:
+flutter_launcher_icons: ^0.13.1
+flutter_native_splash: ^2.4.0
+mocktail: ^1.0.4
+flutter_test_robots: ^0.0.23
+golden_toolkit: ^0.15.0  # Visual regression tests
+15. Platform-Specific Enhancements
+iOS Specific:
+
+App Clips for quick practice without install
+Siri Shortcuts for "Start daily practice"
+iOS widgets for streak/progress
+
+Android Specific:
+
+App shortcuts (long-press actions)
+Adaptive icons
+Picture-in-picture for explanations
+
+16. Monitoring & Observability
+dart// Structured logging:
+class AppLogger {
+  // Log levels: verbose, debug, info, warning, error
+  // Include: userId, sessionId, deviceId, timestamp
+  // Remote logging for errors only
+  // Local rolling logs (max 5MB)
+}
+
+// Health checks:
+GET /health → backend status
+GET /metrics → prometheus metrics
+These additions would make the app more robust, maintainable, and user-friendly. The core architecture is solid - these are enhancements for production readiness and scale.RetryClaude can make mistakes. Please double-check responses.
