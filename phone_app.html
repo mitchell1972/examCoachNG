@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExamCoach Mobile App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mobile-container {
+            max-width: 414px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .status-bar {
+            height: 44px;
+            background: #000;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .app-header h1 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.disconnected {
+            background: #f44336;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .subjects-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            padding-left: 5px;
+        }
+
+        .subject-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .subject-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .subject-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        .subject-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .subject-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            color: white;
+        }
+
+        .subject-details h4 {
+            font-size: 1em;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .subject-details p {
+            font-size: 0.8em;
+            color: #6c757d;
+        }
+
+        .start-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .start-btn:hover {
+            background: #5a67d8;
+            transform: scale(1.05);
+        }
+
+        .quiz-screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .quiz-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .quiz-progress {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .quiz-timer {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .question-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .options-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option-item {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option-item:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .option-item.selected {
+            border-color: #667eea;
+            background: #e3f2fd;
+        }
+
+        .option-item.correct {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+        }
+
+        .option-item.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .option-letter {
+            width: 30px;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #6c757d;
+        }
+
+        .option-item.selected .option-letter {
+            background: #667eea;
+            color: white;
+        }
+
+        .quiz-footer {
+            padding: 20px;
+            border-top: 1px solid #e9ecef;
+            background: white;
+        }
+
+        .footer-btn {
+            width: 100%;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .footer-btn:hover {
+            background: #5a67d8;
+        }
+
+        .footer-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .explanation {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .results-screen {
+            display: none;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            color: white;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .results-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .bottom-nav {
+            height: 80px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-item div {
+            font-size: 1.5em;
+            margin-bottom: 3px;
+        }
+
+        @media (max-width: 414px) {
+            .mobile-container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>ExamCoach</span>
+            <span>100%</span>
+        </div>
+
+        <!-- App Header -->
+        <div class="app-header">
+            <h1>JAMB Practice</h1>
+            <p>Connected to Backend Database</p>
+            <div class="connection-status">
+                <div class="status-dot" id="connectionDot"></div>
+                <span id="connectionText">Connecting...</span>
+            </div>
+        </div>
+
+        <!-- Home Screen -->
+        <div id="homeScreen" class="main-content">
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalQuestions">-</div>
+                    <div class="stat-label">Questions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">11</div>
+                    <div class="stat-label">Subjects</div>
+                </div>
+            </div>
+
+            <!-- Subjects -->
+            <div class="subjects-section">
+                <h3 class="section-title">Choose Subject</h3>
+                <div class="subject-list" id="subjectList">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading subjects...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quizScreen" class="quiz-screen">
+            <div class="quiz-header">
+                <div class="quiz-progress" id="quizProgress">Question 1 of 10</div>
+                <div class="quiz-timer" id="quizTimer">00:00</div>
+            </div>
+
+            <div class="question-container">
+                <div class="question-text" id="questionText">
+                    Question will appear here...
+                </div>
+
+                <div class="options-list" id="optionsList">
+                    <!-- Options will be populated here -->
+                </div>
+
+                <div id="explanation" class="explanation" style="display: none;">
+                    <!-- Explanation will appear here -->
+                </div>
+            </div>
+
+            <div class="quiz-footer">
+                <button class="footer-btn" id="nextBtn" onclick="nextQuestion()">Next Question</button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="results-screen">
+            <h2>Quiz Complete!</h2>
+            <div class="score-circle" id="scoreCircle">85%</div>
+            
+            <div class="results-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="correctAnswers">8</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalTime">2:30</div>
+                    <div class="stat-label">Time</div>
+                </div>
+            </div>
+
+            <button class="footer-btn" onclick="goHome()">Back to Subjects</button>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <div>📚</div>
+                <span>Practice</span>
+            </div>
+            <div class="nav-item">
+                <div>📊</div>
+                <span>Progress</span>
+            </div>
+            <div class="nav-item">
+                <div>⚙️</div>
+                <span>Settings</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration - Connect to your backend
+        const API_BASE = 'http://localhost:3000/api';
+        
+        // App State
+        let currentSession = null;
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let selectedAnswer = null;
+        let startTime = Date.now();
+        let questionStartTime = Date.now();
+        let userAnswers = [];
+        let timerInterval = null;
+
+        // Subject configuration
+        const SUBJECTS = {
+            'ENG': { name: 'Use of English', icon: '📝', questions: 60, compulsory: true },
+            'MTH': { name: 'Mathematics', icon: '📊', questions: 40 },
+            'PHY': { name: 'Physics', icon: '⚡', questions: 40 },
+            'CHM': { name: 'Chemistry', icon: '🧪', questions: 40 },
+            'BIO': { name: 'Biology', icon: '🌱', questions: 40 },
+            'ECO': { name: 'Economics', icon: '📈', questions: 40 },
+            'ACC': { name: 'Accounting', icon: '💰', questions: 40 },
+            'COM': { name: 'Commerce', icon: '🏪', questions: 40 },
+            'LIT': { name: 'Literature', icon: '📚', questions: 40 },
+            'GOV': { name: 'Government', icon: '🏛️', questions: 40 },
+            'HIS': { name: 'History', icon: '📜', questions: 40 },
+            'GEO': { name: 'Geography', icon: '🌍', questions: 40 }
+        };
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('ExamCoach Mobile App Loaded');
+            checkConnection();
+            loadSubjects();
+        });
+
+        // Connection Management
+        async function checkConnection() {
+            const dot = document.getElementById('connectionDot');
+            const text = document.getElementById('connectionText');
+            
+            try {
+                const response = await fetch(`http://localhost:3000/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    dot.classList.remove('disconnected');
+                    text.textContent = 'Connected';
+                    return true;
+                }
+            } catch (error) {
+                console.error('Connection failed:', error);
+            }
+            
+            dot.classList.add('disconnected');
+            text.textContent = 'Offline Mode';
+            return false;
+        }
+
+        // Load Subjects
+        async function loadSubjects() {
+            const subjectList = document.getElementById('subjectList');
+            const totalQuestionsEl = document.getElementById('totalQuestions');
+            
+            try {
+                const response = await fetch(`${API_BASE}/subjects`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const totalQuestions = data.data.reduce((sum, subject) => sum + subject.questionCount, 0);
+                    totalQuestionsEl.textContent = totalQuestions.toLocaleString();
+                    
+                    displaySubjects(data.data);
+                } else {
+                    throw new Error('Failed to load subjects');
+                }
+            } catch (error) {
+                console.error('Error loading subjects:', error);
+                displaySubjects(); // Show default subjects
+            }
+        }
+
+        function displaySubjects(apiSubjects = null) {
+            const subjectList = document.getElementById('subjectList');
+            let html = '';
+            
+            // Use API data if available, otherwise use default subjects
+            const subjectsToShow = apiSubjects || Object.entries(SUBJECTS).map(([code, info]) => ({
+                code,
+                name: info.name,
+                questionCount: info.questions
+            }));
+            
+            subjectsToShow.forEach(subject => {
+                const subjectInfo = SUBJECTS[subject.code] || { icon: '📖', questions: subject.questionCount };
+                const isCompulsory = subject.code === 'ENG';
+                
+                html += `
+                    <div class="subject-item" onclick="startPractice('${subject.code}', '${subject.name}')">
+                        <div class="subject-info">
+                            <div class="subject-icon">${subjectInfo.icon}</div>
+                            <div class="subject-details">
+                                <h4>${subject.name} ${isCompulsory ? '(Compulsory)' : ''}</h4>
+                                <p>${subject.questionCount || subjectInfo.questions} questions available</p>
+                            </div>
+                        </div>
+                        <button class="start-btn">Start</button>
+                    </div>
+                `;
+            });
+            
+            subjectList.innerHTML = html;
+        }
+
+        // Practice Session Management
+        async function startPractice(subjectCode, subjectName) {
+            console.log(`Starting practice for ${subjectName} (${subjectCode})`);
+            
+            // Show loading
+            document.getElementById('homeScreen').style.display = 'none';
+            document.getElementById('quizScreen').style.display = 'flex';
+            document.getElementById('questionText').textContent = 'Loading questions from database...';
+            
+            try {
+                // Create session and load questions
+                const [session, questions] = await Promise.all([
+                    createSession(subjectCode),
+                    loadQuestions(subjectCode, 10)
+                ]);
+                
+                if (!session || !questions || questions.length === 0) {
+                    throw new Error('Failed to load practice session');
+                }
+                
+                currentSession = session;
+                currentQuestions = questions;
+                currentQuestionIndex = 0;
+                userAnswers = [];
+                
+                startTimer();
+                showCurrentQuestion();
+                
+            } catch (error) {
+                console.error('Error starting practice:', error);
+                alert('Unable to start practice. Please check your connection.');
+                goHome();
+            }
+        }
+
+        async function createSession(subjectCode) {
+            try {
+                const response = await fetch(`${API_BASE}/sessions/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subjectCode: subjectCode,
+                        questionCount: 10
+                    })
+                });
+                
+                const data = await response.json();
+                return data.success ? data.data : null;
+            } catch (error) {
+                console.error('Error creating session:', error);
+                return null;
+            }
+        }
+
+        async function loadQuestions(subjectCode, limit = 10) {
+            try {
+                const response = await fetch(`${API_BASE}/questions/${subjectCode}?limit=${limit}`);
+                const data = await response.json();
+                return data.success ? data.data : [];
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                return [];
+            }
+        }
+
+        // Quiz Functions
+        function startTimer() {
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('quizTimer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function showCurrentQuestion() {
+            if (!currentQuestions || currentQuestions.length === 0) return;
+            
+            const question = currentQuestions[currentQuestionIndex];
+            questionStartTime = Date.now();
+            selectedAnswer = null;
+            
+            // Update UI
+            document.getElementById('quizProgress').textContent = 
+                `Question ${currentQuestionIndex + 1} of ${currentQuestions.length}`;
+            document.getElementById('questionText').textContent = question.stem;
+            document.getElementById('explanation').style.display = 'none';
+            
+            // Create options
+            const optionsList = document.getElementById('optionsList');
+            const options = [
+                { letter: 'A', text: question.optionA },
+                { letter: 'B', text: question.optionB },
+                { letter: 'C', text: question.optionC },
+                { letter: 'D', text: question.optionD }
+            ];
+            
+            if (question.optionE) {
+                options.push({ letter: 'E', text: question.optionE });
+            }
+            
+            let html = '';
+            options.forEach(option => {
+                html += `
+                    <div class="option-item" onclick="selectOption('${option.letter}', this)">
+                        <div class="option-letter">${option.letter}</div>
+                        <div>${option.text}</div>
+                    </div>
+                `;
+            });
+            
+            optionsList.innerHTML = html;
+            
+            // Update next button
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentQuestionIndex === currentQuestions.length - 1) {
+                nextBtn.textContent = 'Finish Quiz';
+            } else {
+                nextBtn.textContent = 'Next Question';
+            }
+        }
+
+        async function selectOption(optionLetter, optionElement) {
+            selectedAnswer = optionLetter;
+            
+            // Update UI
+            document.querySelectorAll('.option-item').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            optionElement.classList.add('selected');
+            
+            // Submit answer
+            const question = currentQuestions[currentQuestionIndex];
+            const timeSpent = Date.now() - questionStartTime;
+            
+            try {
+                const result = await submitAnswer(question.id, optionLetter, timeSpent);
+                
+                if (result) {
+                    // Store answer
+                    userAnswers[currentQuestionIndex] = {
+                        questionId: question.id,
+                        chosen: optionLetter,
+                        correct: result.correctOption,
+                        isCorrect: result.isCorrect,
+                        timeSpent: timeSpent,
+                        explanation: result.explanation
+                    };
+                    
+                    // Show feedback
+                    document.querySelectorAll('.option-item').forEach(opt => {
+                        const letter = opt.querySelector('.option-letter').textContent;
+                        if (letter === result.correctOption) {
+                            opt.classList.add('correct');
+                        } else if (letter === optionLetter && !result.isCorrect) {
+                            opt.classList.add('incorrect');
+                        }
+                    });
+                    
+                    // Show explanation
+                    if (result.explanation) {
+                        const explanationDiv = document.getElementById('explanation');
+                        explanationDiv.innerHTML = `<strong>Explanation:</strong> ${result.explanation}`;
+                        explanationDiv.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.error('Error submitting answer:', error);
+            }
+        }
+
+        async function submitAnswer(questionId, chosenOption, timeSpent) {
+            if (!currentSession) return null;
+            
+            try {
+                const response = await fetch(`${API_BASE}/sessions/answer`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId: currentSession.sessionId,
+                        questionId: questionId,
+                        chosenOption: chosenOption,
+                        timeSpentMs: timeSpent
+                    })
+                });
+                
+                const data = await response.json();
+                return data.success ? data.data : null;
+            } catch (error) {
+                console.error('Error submitting answer:', error);
+                return null;
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                currentQuestionIndex++;
+                showCurrentQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            showResults();
+        }
+
+        function showResults() {
+            // Calculate results
+            const correctCount = userAnswers.filter(answer => answer && answer.isCorrect).length;
+            const totalQuestions = currentQuestions.length;
+            const percentage = Math.round((correctCount / totalQuestions) * 100);
+            const totalTime = Math.floor((Date.now() - startTime) / 1000);
+            
+            // Update results UI
+            document.getElementById('scoreCircle').textContent = `${percentage}%`;
+            document.getElementById('correctAnswers').textContent = correctCount;
+            document.getElementById('totalTime').textContent = 
+                `${Math.floor(totalTime / 60)}:${(totalTime % 60).toString().padStart(2, '0')}`;
+            
+            // Show results screen
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultsScreen').style.display = 'block';
+        }
+
+        function goHome() {
+            // Reset everything
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            currentSession = null;
+            currentQuestions = [];
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            selectedAnswer = null;
+            
+            // Show home screen
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultsScreen').style.display = 'none';
+            document.getElementById('homeScreen').style.display = 'block';
+        }
+
+        // Auto-check connection every 30 seconds
+        setInterval(checkConnection, 30000);
+    </script>
+</body>
+</html>
