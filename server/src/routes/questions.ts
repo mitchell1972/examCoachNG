@@ -112,7 +112,7 @@ router.get('/:subjectCode', async (req, res) => {
 });
 
 // Get a specific question by ID
-router.get('/single/:id', async (req, res) => {
+router.get('/single/:id', async (req, res): Promise<any> => {
   try {
     const { id } = req.params;
 

@@ -8,7 +8,6 @@ export const pool = new Pool({
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
-  acquireTimeoutMillis: 10000,
   ssl: false
 });
 

@@ -563,14 +563,27 @@
             const text = document.getElementById('connectionText');
             
             try {
-                // Try direct API call first (works via curl and direct browser access)
-                const response = await fetch(`${API_BASE}/health`, {
+                // Check health endpoint with proper CORS
+                const healthResponse = await fetch(`${API_BASE}/health`, {
                     method: 'GET',
-                    mode: 'no-cors'  // Bypass CORS for testing
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
                 });
                 
-                // If no-cors, we can't read response, so try a secondary test
-                const apiTest = await fetch(`${API_BASE}/api/subjects`, {
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    if (healthData.status === 'OK') {
+                        dot.classList.remove('disconnected');
+                        text.textContent = 'Connected';
+                        console.log('Backend connection successful');
+                        return true;
+                    }
+                }
+                
+                // Fallback to checking subjects endpoint
+                const apiTest = await fetch(`${API_BASE}/api/questions/subjects`, {
                     method: 'GET',
                     mode: 'cors',
                     headers: {
@@ -583,7 +596,7 @@
                     if (data.success) {
                         dot.classList.remove('disconnected');
                         text.textContent = 'Connected';
-                        console.log('Backend connection successful');
+                        console.log('Backend connection successful via subjects endpoint');
                         return true;
                     }
                 }
@@ -602,7 +615,7 @@
             const totalQuestionsEl = document.getElementById('totalQuestions');
             
             try {
-                const response = await fetch(`${API_BASE}/api/subjects`, {
+                const response = await fetch(`${API_BASE}/api/questions/subjects`, {
                     method: 'GET',
                     mode: 'cors',
                     headers: {
@@ -698,7 +711,7 @@
 
         async function createSession(subjectCode) {
             try {
-                const response = await fetch(`${API_BASE}/sessions/create`, {
+                const response = await fetch(`${API_BASE}/api/sessions/create`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -717,7 +730,7 @@
 
         async function loadQuestions(subjectCode, limit = 10) {
             try {
-                const response = await fetch(`${API_BASE}/questions/${subjectCode}?limit=${limit}`);
+                const response = await fetch(`${API_BASE}/api/questions/${subjectCode}?limit=${limit}`);
                 const data = await response.json();
                 return data.success ? data.data : [];
             } catch (error) {
@@ -840,7 +853,7 @@
             if (!currentSession) return null;
             
             try {
-                const response = await fetch(`${API_BASE}/sessions/answer`, {
+                const response = await fetch(`${API_BASE}/api/sessions/answer`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

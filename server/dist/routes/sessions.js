@@ -50,7 +50,7 @@ router.post('/create', async (req, res) => {
             queryParams.push(topic);
         }
         questionQuery += ` ORDER BY RANDOM() LIMIT $${queryParams.length + 1}`;
-        queryParams.push(finalQuestionCount);
+        queryParams.push(finalQuestionCount.toString());
         const questionsResult = await (0, database_1.query)(questionQuery, queryParams);
         if (questionsResult.rows.length > 0) {
             const sessionQuestionInserts = questionsResult.rows.map((q, index) => `('${sessionId}', '${q.id}', ${index + 1})`).join(', ');
@@ -80,7 +80,7 @@ router.post('/create', async (req, res) => {
         });
     }
 });
-router.get('/:sessionId/questions', async (req, res) => {
+router.get('/questions/:sessionId', async (req, res) => {
     try {
         const { sessionId } = req.params;
         const result = await (0, database_1.query)(`
@@ -170,7 +170,7 @@ router.post('/answer', async (req, res) => {
         });
     }
 });
-router.post('/:sessionId/complete', async (req, res) => {
+router.post('/complete/:sessionId', async (req, res) => {
     try {
         const { sessionId } = req.params;
         const resultQuery = await (0, database_1.query)(`

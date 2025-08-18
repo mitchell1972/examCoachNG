@@ -6,7 +6,7 @@ import { CreateSessionRequest, SubmitAnswerRequest } from '../types';
 const router = express.Router();
 
 // Create a new practice session
-router.post('/create', async (req, res) => {
+router.post('/create', async (req, res): Promise<any> => {
   try {
     const { 
       subjectCode, 
@@ -147,7 +147,7 @@ router.get('/questions/:sessionId', async (req, res) => {
 });
 
 // Submit an answer
-router.post('/answer', async (req, res) => {
+router.post('/answer', async (req, res): Promise<any> => {
   try {
     const { 
       sessionId, 
@@ -216,7 +216,7 @@ router.post('/answer', async (req, res) => {
 });
 
 // Complete session and get results  
-router.post('/complete/:sessionId', async (req, res) => {
+router.post('/complete/:sessionId', async (req, res): Promise<any> => {
   try {
     const { sessionId } = req.params;
 

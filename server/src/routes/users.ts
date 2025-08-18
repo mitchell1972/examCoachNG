@@ -4,7 +4,7 @@ import { query } from '../config/database';
 const router = express.Router();
 
 // Create a new user (simplified for demo)
-router.post('/register', async (req, res) => {
+router.post('/register', async (req, res): Promise<any> => {
   try {
     const { phone, name, email, selectedSubjects = [] } = req.body;
 
@@ -50,7 +50,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Get user by phone
-router.get('/by-phone/:phone', async (req, res) => {
+router.get('/by-phone/:phone', async (req, res): Promise<any> => {
   try {
     const { phone } = req.params;
 

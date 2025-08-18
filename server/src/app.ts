@@ -19,8 +19,14 @@ const PORT = process.env.PORT || 3000;
 
 // Security middleware
 app.use(helmet());
+
+// CORS configuration
+const corsOrigins = process.env.CORS_ORIGINS 
+  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+  : ['http://localhost:3000', 'http://localhost:5000', 'http://localhost:5500'];
+
 app.use(cors({
-  origin: '*', // Allow all origins for development
+  origin: process.env.NODE_ENV === 'production' ? corsOrigins : '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true

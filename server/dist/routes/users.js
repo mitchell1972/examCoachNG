@@ -46,7 +46,7 @@ router.post('/register', async (req, res) => {
         });
     }
 });
-router.get('/phone/:phone', async (req, res) => {
+router.get('/by-phone/:phone', async (req, res) => {
     try {
         const { phone } = req.params;
         const result = await (0, database_1.query)(`

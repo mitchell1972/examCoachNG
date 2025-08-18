@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:uni_links/uni_links.dart';
+import 'package:app_links/app_links.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/env/env.dart';
@@ -11,8 +11,11 @@ class DeepLinkService {
 
   StreamSubscription<Uri>? _linkSubscription;
   GoRouter? _router;
+  late final AppLinks _appLinks;
 
-  DeepLinkService._internal();
+  DeepLinkService._internal() {
+    _appLinks = AppLinks();
+  }
 
   Future<void> initialize() async {
     try {
@@ -20,7 +23,7 @@ class DeepLinkService {
       // This would be called from the app router provider
       
       // Listen for incoming links when app is already running
-      _linkSubscription = linkStream.listen(
+      _linkSubscription = _appLinks.uriLinkStream.listen(
         _handleIncomingLink,
         onError: (err) {
           Logger.error('Deep link stream error', error: err);
@@ -28,7 +31,7 @@ class DeepLinkService {
       );
 
       // Handle initial link when app is launched from a deep link
-      final initialUri = await getInitialUri();
+      final initialUri = await _appLinks.getInitialAppLink();
       if (initialUri != null) {
         Logger.info('App launched with deep link: $initialUri');
         _handleIncomingLink(initialUri);

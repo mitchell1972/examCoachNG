@@ -18,10 +18,13 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
 app.use((0, helmet_1.default)());
+const corsOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+    : ['http://localhost:3000', 'http://localhost:5000', 'http://localhost:5500'];
 app.use((0, cors_1.default)({
-    origin: process.env.NODE_ENV === 'production'
-        ? ['https://your-domain.com']
-        : ['http://localhost:5000', 'http://localhost:3000'],
+    origin: process.env.NODE_ENV === 'production' ? corsOrigins : '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
 }));
 const limiter = (0, express_rate_limit_1.default)({

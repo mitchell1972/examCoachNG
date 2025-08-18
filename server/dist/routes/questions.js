@@ -92,7 +92,7 @@ router.get('/:subjectCode', async (req, res) => {
         });
     }
 });
-router.get('/question/:id', async (req, res) => {
+router.get('/single/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const result = await (0, database_1.query)(`
