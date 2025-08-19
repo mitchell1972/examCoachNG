@@ -34,55 +34,6 @@ export declare const JAMB_SUBJECTS: {
         duration: number;
         sections: string[];
     };
-    ECONOMICS: {
-        code: string;
-        name: string;
-        questionCount: number;
-        duration: number;
-        sections: string[];
-    };
-    ACCOUNTING: {
-        code: string;
-        name: string;
-        questionCount: number;
-        duration: number;
-        sections: string[];
-    };
-    COMMERCE: {
-        code: string;
-        name: string;
-        questionCount: number;
-        duration: number;
-        sections: string[];
-    };
-    LITERATURE: {
-        code: string;
-        name: string;
-        questionCount: number;
-        duration: number;
-        sections: string[];
-    };
-    GOVERNMENT: {
-        code: string;
-        name: string;
-        questionCount: number;
-        duration: number;
-        sections: string[];
-    };
-    HISTORY: {
-        code: string;
-        name: string;
-        questionCount: number;
-        duration: number;
-        sections: string[];
-    };
-    GEOGRAPHY: {
-        code: string;
-        name: string;
-        questionCount: number;
-        duration: number;
-        sections: string[];
-    };
 };
 export declare const getSubjectByCode: (code: string) => {
     code: string;
@@ -114,92 +65,8 @@ export declare const getSubjectByCode: (code: string) => {
     questionCount: number;
     duration: number;
     sections: string[];
-} | {
-    code: string;
-    name: string;
-    questionCount: number;
-    duration: number;
-    sections: string[];
-} | {
-    code: string;
-    name: string;
-    questionCount: number;
-    duration: number;
-    sections: string[];
-} | {
-    code: string;
-    name: string;
-    questionCount: number;
-    duration: number;
-    sections: string[];
-} | {
-    code: string;
-    name: string;
-    questionCount: number;
-    duration: number;
-    sections: string[];
-} | {
-    code: string;
-    name: string;
-    questionCount: number;
-    duration: number;
-    sections: string[];
-} | {
-    code: string;
-    name: string;
-    questionCount: number;
-    duration: number;
-    sections: string[];
-} | {
-    code: string;
-    name: string;
-    questionCount: number;
-    duration: number;
-    sections: string[];
 } | undefined;
 export declare const getAllSubjects: () => ({
-    code: string;
-    name: string;
-    questionCount: number;
-    duration: number;
-    sections: string[];
-} | {
-    code: string;
-    name: string;
-    questionCount: number;
-    duration: number;
-    sections: string[];
-} | {
-    code: string;
-    name: string;
-    questionCount: number;
-    duration: number;
-    sections: string[];
-} | {
-    code: string;
-    name: string;
-    questionCount: number;
-    duration: number;
-    sections: string[];
-} | {
-    code: string;
-    name: string;
-    questionCount: number;
-    duration: number;
-    sections: string[];
-} | {
-    code: string;
-    name: string;
-    questionCount: number;
-    duration: number;
-    sections: string[];
-} | {
-    code: string;
-    name: string;
-    questionCount: number;
-    duration: number;
-    sections: string[];
-} | {
     code: string;
     name: string;
     questionCount: number;

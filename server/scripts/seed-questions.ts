@@ -25,6 +25,132 @@ const sampleQuestions = [
     syllabustopic: 'Linear Equations',
     verified: true
   },
+  
+  // Economics
+  {
+    subjectCode: 'ECO',
+    section: 'Microeconomics',
+    year: 2024,
+    questionNumber: 1,
+    stem: 'In a perfectly competitive market, individual firms are price _____.',
+    optionA: 'makers',
+    optionB: 'discriminators',
+    optionC: 'takers',
+    optionD: 'regulators',
+    correctOption: 'C',
+    explanation: 'Firms in perfect competition cannot influence price; they are price takers.',
+    difficulty: 2,
+    syllabustopic: 'Market Structures',
+    verified: true
+  },
+  
+  // Accounting
+  {
+    subjectCode: 'ACC',
+    section: 'Financial Accounting',
+    year: 2024,
+    questionNumber: 1,
+    stem: 'Which of the following is a liability?',
+    optionA: 'Accounts Receivable',
+    optionB: 'Inventory',
+    optionC: 'Accounts Payable',
+    optionD: 'Prepaid Rent',
+    correctOption: 'C',
+    explanation: 'Accounts Payable represents amounts owed to suppliers; it is a liability.',
+    difficulty: 1,
+    syllabustopic: 'Statement of Financial Position',
+    verified: true
+  },
+  
+  // Commerce
+  {
+    subjectCode: 'COM',
+    section: 'Trade',
+    year: 2024,
+    questionNumber: 1,
+    stem: 'The exchange of goods and services within a country is known as _____.',
+    optionA: 'foreign trade',
+    optionB: 'home trade',
+    optionC: 'counter trade',
+    optionD: 'barter trade',
+    correctOption: 'B',
+    explanation: 'Home trade refers to domestic trade within a country.',
+    difficulty: 1,
+    syllabustopic: 'Trade',
+    verified: true
+  },
+  
+  // Literature in English
+  {
+    subjectCode: 'LIT',
+    section: 'Poetry',
+    year: 2024,
+    questionNumber: 1,
+    stem: 'A figure of speech that compares two unlike things using “like” or “as” is called _____.',
+    optionA: 'metaphor',
+    optionB: 'simile',
+    optionC: 'personification',
+    optionD: 'hyperbole',
+    correctOption: 'B',
+    explanation: 'A simile makes comparisons using like or as.',
+    difficulty: 1,
+    syllabustopic: 'Figures of Speech',
+    verified: true
+  },
+  
+  // Government
+  {
+    subjectCode: 'GOV',
+    section: 'Political Theory',
+    year: 2024,
+    questionNumber: 1,
+    stem: 'The separation of powers was popularized by _____.',
+    optionA: 'Karl Marx',
+    optionB: 'Montesquieu',
+    optionC: 'Max Weber',
+    optionD: 'John Locke',
+    correctOption: 'B',
+    explanation: 'Baron de Montesquieu articulated the separation of powers in The Spirit of the Laws.',
+    difficulty: 2,
+    syllabustopic: 'Separation of Powers',
+    verified: true
+  },
+  
+  // History
+  {
+    subjectCode: 'HIS',
+    section: 'African History',
+    year: 2024,
+    questionNumber: 1,
+    stem: 'The trans-Saharan trade primarily connected West Africa with _____.',
+    optionA: 'Europe',
+    optionB: 'North Africa',
+    optionC: 'East Asia',
+    optionD: 'Southern Africa',
+    correctOption: 'B',
+    explanation: 'Trans-Saharan routes linked West African states with North African markets.',
+    difficulty: 2,
+    syllabustopic: 'Trade Routes',
+    verified: true
+  },
+  
+  // Geography
+  {
+    subjectCode: 'GEO',
+    section: 'Physical Geography',
+    year: 2024,
+    questionNumber: 1,
+    stem: 'Which layer of the atmosphere contains the ozone layer?',
+    optionA: 'Troposphere',
+    optionB: 'Stratosphere',
+    optionC: 'Mesosphere',
+    optionD: 'Thermosphere',
+    correctOption: 'B',
+    explanation: 'Most atmospheric ozone is concentrated in the lower stratosphere.',
+    difficulty: 2,
+    syllabustopic: 'Atmosphere',
+    verified: true
+  },
   {
     subjectCode: 'MTH',
     section: 'Algebra',

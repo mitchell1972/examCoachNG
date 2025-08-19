@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ExamCoach Premium - Unlock Full Access</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .plans-container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .plan {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .plan.selected {
+            border-color: #667eea;
+            background: linear-gradient(to right, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+        }
+
+        .plan.popular {
+            border-color: #667eea;
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .plan-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .plan-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .plan-duration {
+            font-size: 14px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .plan-features li {
+            padding: 8px 0;
+            font-size: 14px;
+            color: #555;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .plan-features li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .subscribe-form {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .subscribe-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .subscribe-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .subscribe-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .payment-methods {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .payment-method {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .secure-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .secure-badge svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .current-plan {
+            background: #f0f7ff;
+            border: 1px solid #667eea;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .current-plan h3 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 ExamCoach Premium</h1>
+            <p>Unlock unlimited practice and ace your JAMB exam!</p>
+        </div>
+
+        <div class="plans-container">
+            <!-- Current subscription status -->
+            <div id="currentPlan" class="current-plan" style="display: none;">
+                <h3>Your Current Plan</h3>
+                <p id="planDetails"></p>
+            </div>
+
+            <!-- Subscription Plans -->
+            <div class="plan" data-plan="basic">
+                <div class="plan-header">
+                    <div>
+                        <div class="plan-name">Basic Plan</div>
+                        <div class="plan-duration">Monthly</div>
+                    </div>
+                    <div class="plan-price">₦1,000</div>
+                </div>
+                <ul class="plan-features">
+                    <li>100 questions per day</li>
+                    <li>Basic explanations</li>
+                    <li>Progress tracking</li>
+                </ul>
+            </div>
+
+            <div class="plan popular selected" data-plan="premium">
+                <span class="popular-badge">MOST POPULAR</span>
+                <div class="plan-header">
+                    <div>
+                        <div class="plan-name">Premium Plan</div>
+                        <div class="plan-duration">Monthly</div>
+                    </div>
+                    <div class="plan-price">₦2,500</div>
+                </div>
+                <ul class="plan-features">
+                    <li>Unlimited questions</li>
+                    <li>Detailed explanations</li>
+                    <li>Video solutions</li>
+                    <li>Mock exams</li>
+                    <li>Performance analytics</li>
+                </ul>
+            </div>
+
+            <div class="plan" data-plan="annual">
+                <div class="plan-header">
+                    <div>
+                        <div class="plan-name">Annual Plan</div>
+                        <div class="plan-duration">Save ₦10,000!</div>
+                    </div>
+                    <div class="plan-price">₦20,000</div>
+                </div>
+                <ul class="plan-features">
+                    <li>Everything in Premium</li>
+                    <li>2 months FREE</li>
+                    <li>Priority support</li>
+                    <li>Downloadable content</li>
+                    <li>Early access to new features</li>
+                </ul>
+            </div>
+
+            <!-- Subscription Form -->
+            <form id="subscriptionForm" class="subscribe-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" required placeholder="08012345678">
+                </div>
+                
+                <button type="submit" class="subscribe-btn">
+                    Subscribe Now
+                </button>
+
+                <div class="error-message" id="errorMessage"></div>
+                <div class="success-message" id="successMessage"></div>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px;">Processing payment...</p>
+            </div>
+
+            <div class="payment-methods">
+                <span class="payment-method">💳 Cards</span>
+                <span class="payment-method">🏦 Bank Transfer</span>
+                <span class="payment-method">📱 USSD</span>
+            </div>
+
+            <div class="secure-badge">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/>
+                </svg>
+                Secured by Paystack
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Paystack Script -->
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    
+    <script>
+        // Configuration
+        const API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000' 
+            : window.location.origin;
+        
+        const PAYSTACK_PUBLIC_KEY = 'pk_test_xxxxxxxxxxxxx'; // Replace with your Paystack public key
+
+        let selectedPlan = 'premium';
+
+        // Plan selection
+        document.querySelectorAll('.plan').forEach(plan => {
+            plan.addEventListener('click', function() {
+                document.querySelectorAll('.plan').forEach(p => p.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedPlan = this.dataset.plan;
+            });
+        });
+
+        // Check current subscription
+        async function checkSubscription() {
+            const phone = localStorage.getItem('userPhone');
+            if (phone) {
+                try {
+                    const response = await fetch(`${API_BASE}/api/subscriptions/status/${phone}`);
+                    const data = await response.json();
+                    
+                    if (data.hasActiveSubscription) {
+                        document.getElementById('currentPlan').style.display = 'block';
+                        document.getElementById('planDetails').textContent = 
+                            `${data.subscription.plan} - ${data.subscription.daysRemaining} days remaining`;
+                    }
+                } catch (error) {
+                    console.error('Failed to check subscription:', error);
+                }
+            }
+        }
+
+        // Form submission
+        document.getElementById('subscriptionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            
+            // Save phone for later
+            localStorage.setItem('userPhone', phone);
+            
+            // Hide messages
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+            
+            try {
+                // Initialize payment
+                const response = await fetch(`${API_BASE}/api/subscriptions/initialize`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        phone,
+                        planId: selectedPlan
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // If in test mode or no Paystack key
+                    if (!PAYSTACK_PUBLIC_KEY || PAYSTACK_PUBLIC_KEY.includes('xxx')) {
+                        // Simulate payment success
+                        document.getElementById('loading').style.display = 'block';
+                        
+                        setTimeout(async () => {
+                            // Verify payment
+                            const verifyResponse = await fetch(
+                                `${API_BASE}/api/subscriptions/verify/${data.reference}`,
+                                { method: 'POST' }
+                            );
+                            const verifyData = await verifyResponse.json();
+                            
+                            document.getElementById('loading').style.display = 'none';
+                            
+                            if (verifyData.success) {
+                                document.getElementById('successMessage').textContent = 
+                                    '✅ Subscription activated successfully! (Test Mode)';
+                                document.getElementById('successMessage').style.display = 'block';
+                                
+                                // Redirect after 2 seconds
+                                setTimeout(() => {
+                                    window.location.href = '/phone_app.html';
+                                }, 2000);
+                            }
+                        }, 2000);
+                        
+                        return;
+                    }
+
+                    // Real Paystack payment
+                    const handler = PaystackPop.setup({
+                        key: PAYSTACK_PUBLIC_KEY,
+                        email: email,
+                        amount: data.amount,
+                        ref: data.reference,
+                        metadata: {
+                            phone: phone,
+                            plan: selectedPlan
+                        },
+                        callback: async function(response) {
+                            // Payment successful, verify on backend
+                            document.getElementById('loading').style.display = 'block';
+                            
+                            const verifyResponse = await fetch(
+                                `${API_BASE}/api/subscriptions/verify/${response.reference}`,
+                                { method: 'POST' }
+                            );
+                            const verifyData = await verifyResponse.json();
+                            
+                            document.getElementById('loading').style.display = 'none';
+                            
+                            if (verifyData.success) {
+                                document.getElementById('successMessage').textContent = 
+                                    '✅ Subscription activated successfully!';
+                                document.getElementById('successMessage').style.display = 'block';
+                                
+                                // Redirect to app
+                                setTimeout(() => {
+                                    window.location.href = '/phone_app.html';
+                                }, 2000);
+                            } else {
+                                document.getElementById('errorMessage').textContent = 
+                                    'Payment verification failed. Please contact support.';
+                                document.getElementById('errorMessage').style.display = 'block';
+                            }
+                        },
+                        onClose: function() {
+                            console.log('Payment window closed');
+                        }
+                    });
+                    
+                    handler.openIframe();
+                } else {
+                    document.getElementById('errorMessage').textContent = 
+                        data.error || 'Failed to initialize payment';
+                    document.getElementById('errorMessage').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Subscription error:', error);
+                document.getElementById('errorMessage').textContent = 
+                    'An error occurred. Please try again.';
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        });
+
+        // Check subscription on load
+        checkSubscription();
+    </script>
+</body>
+</html>

@@ -439,7 +439,7 @@
                     <div class="stat-label">Questions</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">11</div>
+                    <div class="stat-number">5</div>
                     <div class="stat-label">Subjects</div>
                 </div>
             </div>
@@ -501,17 +501,35 @@
             <button class="footer-btn" onclick="goHome()">Back to Subjects</button>
         </div>
 
+        <!-- Progress Screen -->
+        <div id="progressScreen" class="main-content" style="display: none;">
+            <h3 class="section-title">Your Progress</h3>
+            <div class="stat-card" style="margin-bottom: 15px;">
+                <div class="stat-number" id="progressAccuracy">-</div>
+                <div class="stat-label">Average Accuracy</div>
+            </div>
+            <p style="color:#6c757d; padding: 0 5px;">Practice to see your performance here.</p>
+        </div>
+
+        <!-- Settings Screen -->
+        <div id="settingsScreen" class="main-content" style="display: none;">
+            <h3 class="section-title">Settings</h3>
+            <div class="stat-card">
+                <p style="color:#6c757d;">No configurable settings yet.</p>
+            </div>
+        </div>
+
         <!-- Bottom Navigation -->
         <div class="bottom-nav">
-            <div class="nav-item active">
+            <div id="navPractice" class="nav-item active" onclick="navigateTo('practice')">
                 <div>📚</div>
                 <span>Practice</span>
             </div>
-            <div class="nav-item">
+            <div id="navProgress" class="nav-item" onclick="navigateTo('progress')">
                 <div>📊</div>
                 <span>Progress</span>
             </div>
-            <div class="nav-item">
+            <div id="navSettings" class="nav-item" onclick="navigateTo('settings')">
                 <div>⚙️</div>
                 <span>Settings</span>
             </div>
@@ -540,14 +558,7 @@
             'MTH': { name: 'Mathematics', icon: '📊', questions: 40 },
             'PHY': { name: 'Physics', icon: '⚡', questions: 40 },
             'CHM': { name: 'Chemistry', icon: '🧪', questions: 40 },
-            'BIO': { name: 'Biology', icon: '🌱', questions: 40 },
-            'ECO': { name: 'Economics', icon: '📈', questions: 40 },
-            'ACC': { name: 'Accounting', icon: '💰', questions: 40 },
-            'COM': { name: 'Commerce', icon: '🏪', questions: 40 },
-            'LIT': { name: 'Literature', icon: '📚', questions: 40 },
-            'GOV': { name: 'Government', icon: '🏛️', questions: 40 },
-            'HIS': { name: 'History', icon: '📜', questions: 40 },
-            'GEO': { name: 'Geography', icon: '🌍', questions: 40 }
+            'BIO': { name: 'Biology', icon: '🌱', questions: 40 }
         };
 
         // Initialize App
@@ -684,14 +695,21 @@
             document.getElementById('questionText').textContent = 'Loading questions from database...';
             
             try {
-                // Create session and load questions
-                const [session, questions] = await Promise.all([
-                    createSession(subjectCode),
-                    loadQuestions(subjectCode, 10)
-                ]);
-                
-                if (!session || !questions || questions.length === 0) {
-                    throw new Error('Failed to load practice session');
+                // Load questions first to handle empty datasets gracefully
+                const questions = await loadQuestions(subjectCode, 10);
+
+                if (!questions || questions.length === 0) {
+                    alert(`No questions available for ${subjectName} yet. Please try another subject or seed the database.`);
+                    goHome();
+                    return;
+                }
+
+                // Create the session only when questions exist
+                const session = await createSession(subjectCode);
+                if (!session) {
+                    alert('Unable to start practice session. Please try again.');
+                    goHome();
+                    return;
                 }
                 
                 currentSession = session;
@@ -927,6 +945,42 @@
 
         // Auto-check connection every 30 seconds
         setInterval(checkConnection, 30000);
+
+        // Simple client-side navigation for bottom tabs
+        function navigateTo(tab) {
+            // Screens
+            const home = document.getElementById('homeScreen');
+            const progress = document.getElementById('progressScreen');
+            const settings = document.getElementById('settingsScreen');
+            const quiz = document.getElementById('quizScreen');
+
+            // Tabs
+            const navPractice = document.getElementById('navPractice');
+            const navProgress = document.getElementById('navProgress');
+            const navSettings = document.getElementById('navSettings');
+
+            // Reset active tab
+            [navPractice, navProgress, navSettings].forEach(el => el.classList.remove('active'));
+
+            // Hide all main screens (keep quiz only when in practice flow)
+            home.style.display = 'none';
+            progress.style.display = 'none';
+            settings.style.display = 'none';
+            if (quiz.style.display !== 'flex') {
+                quiz.style.display = 'none';
+            }
+
+            if (tab === 'practice') {
+                navPractice.classList.add('active');
+                home.style.display = 'block';
+            } else if (tab === 'progress') {
+                navProgress.classList.add('active');
+                progress.style.display = 'block';
+            } else if (tab === 'settings') {
+                navSettings.classList.add('active');
+                settings.style.display = 'block';
+            }
+        }
     </script>
 </body>
 </html>

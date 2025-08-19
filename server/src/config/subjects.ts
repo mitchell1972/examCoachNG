@@ -14,7 +14,7 @@ export const JAMB_SUBJECTS = {
     ]
   },
   
-  // Sciences
+  // Sciences only (reduced set)
   MATHEMATICS: {
     code: 'MTH',
     name: 'Mathematics',
@@ -65,101 +65,6 @@ export const JAMB_SUBJECTS = {
       'Animal Biology',
       'Ecology',
       'Genetics and Evolution'
-    ]
-  },
-  
-  // Commercial
-  ECONOMICS: {
-    code: 'ECO',
-    name: 'Economics',
-    questionCount: 40,
-    duration: 60,
-    sections: [
-      'Basic Economic Concepts',
-      'Microeconomics',
-      'Macroeconomics',
-      'International Trade',
-      'Economic Development'
-    ]
-  },
-  ACCOUNTING: {
-    code: 'ACC',
-    name: 'Accounting',
-    questionCount: 40,
-    duration: 60,
-    sections: [
-      'Financial Accounting',
-      'Cost Accounting',
-      'Management Accounting',
-      'Government Accounting',
-      'Auditing'
-    ]
-  },
-  COMMERCE: {
-    code: 'COM',
-    name: 'Commerce',
-    questionCount: 40,
-    duration: 60,
-    sections: [
-      'Trade',
-      'Business Organizations',
-      'Finance',
-      'Marketing',
-      'Business Communication'
-    ]
-  },
-  
-  // Arts
-  LITERATURE: {
-    code: 'LIT',
-    name: 'Literature in English',
-    questionCount: 40,
-    duration: 60,
-    sections: [
-      'African Prose',
-      'Non-African Prose',
-      'African Drama',
-      'Non-African Drama',
-      'Poetry'
-    ]
-  },
-  GOVERNMENT: {
-    code: 'GOV',
-    name: 'Government',
-    questionCount: 40,
-    duration: 60,
-    sections: [
-      'Political Theory',
-      'Nigerian Government',
-      'International Relations',
-      'Public Administration',
-      'Political Parties'
-    ]
-  },
-  HISTORY: {
-    code: 'HIS',
-    name: 'History',
-    questionCount: 40,
-    duration: 60,
-    sections: [
-      'Nigerian History Pre-1800',
-      'Nigerian History 1800-1960',
-      'Nigerian History Post-1960',
-      'African History',
-      'World History'
-    ]
-  },
-  GEOGRAPHY: {
-    code: 'GEO',
-    name: 'Geography',
-    questionCount: 40,
-    duration: 60,
-    sections: [
-      'Physical Geography',
-      'Human Geography',
-      'Regional Geography',
-      'Map Reading',
-      'GIS and Remote Sensing'
     ]
   }
 };
