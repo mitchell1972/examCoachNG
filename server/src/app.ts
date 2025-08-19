@@ -7,10 +7,15 @@ import dotenv from 'dotenv';
 import { pool } from './config/database';
 
 // Import routes
+import authRoutes from './routes/auth';
 import questionRoutes from './routes/questions';
 import sessionRoutes from './routes/sessions';
 import userRoutes from './routes/users';
 import analyticsRoutes from './routes/analytics';
+import subscriptionsRoutes from './routes/subscriptions';
+
+// Import middleware
+import { authenticate, optionalAuth } from './middleware/auth';
 
 dotenv.config();
 
@@ -57,10 +62,15 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes
-app.use('/api/questions', questionRoutes);
-app.use('/api/sessions', sessionRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/analytics', analyticsRoutes);
+// Public routes (no authentication required)
+app.use('/api/auth', authRoutes);
+app.use('/api/questions', optionalAuth, questionRoutes); // Optional auth for better experience
+
+// Protected routes (authentication required)
+app.use('/api/sessions', authenticate, sessionRoutes);
+app.use('/api/users', authenticate, userRoutes);
+app.use('/api/analytics', authenticate, analyticsRoutes);
+app.use('/api/subscriptions', authenticate, subscriptionsRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

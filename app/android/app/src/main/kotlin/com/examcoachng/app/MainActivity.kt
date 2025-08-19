@@ -1,4 +1,4 @@
-package com.example.examcoach_app
+package com.examcoachng.app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -109,24 +109,24 @@ async function verifyAppleReceipt(receiptData: string): Promise<any> {
   };
 
   try {
-    const response = await fetch(verifyUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestBody),
-    });
+          const response = await fetch(verifyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      });
 
-    const data = await response.json();
+      const data = await response.json() as any;
 
-    if (data.status === 21007) {
-      // Receipt is from sandbox, retry with sandbox URL
-      return verifyAppleReceipt(receiptData);
-    }
+      if (data.status === 21007) {
+        // Receipt is from sandbox, retry with sandbox URL
+        return verifyAppleReceipt(receiptData);
+      }
 
-    if (data.status !== 0) {
-      throw new Error(`Apple receipt validation failed with status: ${data.status}`);
-    }
+      if (data.status !== 0) {
+        throw new Error(`Apple receipt validation failed with status: ${data.status}`);
+      }
 
-    return data;
+      return data;
   } catch (error: any) {
     Logger.error('Apple receipt verification failed:', error);
     throw new Error(`Receipt verification failed: ${error.message}`);
@@ -198,8 +198,10 @@ router.post('/verify-receipt', async (req: Request, res: Response) => {
       });
     }
 
-    // Verify user authentication (you should implement proper auth middleware)
-    if (!userId) {
+    // Get authenticated user ID from middleware
+    const authenticatedUserId = req.user?.id || userId;
+    
+    if (!authenticatedUserId) {
       return res.status(401).json({
         valid: false,
         error: 'User authentication required',
@@ -281,7 +283,7 @@ router.post('/verify-receipt', async (req: Request, res: Response) => {
 
     // Save subscription to database
     const subscription = await saveSubscription({
-      userId,
+      userId: authenticatedUserId,
       productId,
       platform,
       orderId,

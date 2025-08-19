@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/billing_client_wrappers.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
@@ -214,22 +216,30 @@ class SubscriptionService {
       final Map<String, dynamic> receiptData = {
         'productId': purchaseDetails.productID,
         'purchaseId': purchaseDetails.purchaseID,
+        'purchaseToken': purchaseDetails.verificationData.serverVerificationData,
         'verificationData': purchaseDetails.verificationData.serverVerificationData,
         'source': purchaseDetails.verificationData.source,
         'platform': Platform.isIOS ? 'ios' : 'android',
+        'userId': 'user_${DateTime.now().millisecondsSinceEpoch}', // TODO: Get actual user ID
       };
 
-      // TODO: Replace with your actual backend endpoint
-      // final response = await http.post(
-      //   Uri.parse('${API_BASE}/api/subscriptions/verify-receipt'),
-      //   headers: {'Content-Type': 'application/json'},
-      //   body: jsonEncode(receiptData),
-      // );
+      // Get API base URL from environment or use default
+      final apiBase = const String.fromEnvironment('API_BASE_URL', 
+        defaultValue: 'http://localhost:3000');
       
-      // For now, return true for testing
-      // In production, ALWAYS verify with your backend
-      Logger.warning('Receipt verification not implemented - accepting purchase for testing');
-      return true;
+      final response = await http.post(
+        Uri.parse('$apiBase/api/subscriptions/verify-receipt'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(receiptData),
+      );
+      
+      if (response.statusCode == 200) {
+        final result = jsonDecode(response.body);
+        return result['valid'] == true;
+      }
+      
+      Logger.error('Receipt verification failed: ${response.statusCode}');
+      return false;
     } catch (e) {
       Logger.error('Receipt verification failed', error: e);
       return false;
