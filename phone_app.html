@@ -66,12 +66,17 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: #4CAF50;
+            background: #FFC107;
             animation: pulse 2s infinite;
+        }
+
+        .status-dot.connected {
+            background: #4CAF50;
         }
 
         .status-dot.disconnected {
             background: #f44336;
+            animation: none;
         }
 
         @keyframes pulse {
@@ -423,10 +428,9 @@
         <!-- App Header -->
         <div class="app-header">
             <h1>JAMB Practice</h1>
-            <p>Connected to Backend Database</p>
             <div class="connection-status">
                 <div class="status-dot" id="connectionDot"></div>
-                <span id="connectionText">Connecting...</span>
+                <span id="connectionText">Checking connection...</span>
             </div>
         </div>
 
@@ -587,7 +591,8 @@
                     const healthData = await healthResponse.json();
                     if (healthData.status === 'OK') {
                         dot.classList.remove('disconnected');
-                        text.textContent = 'Connected';
+                        dot.classList.add('connected');
+                        text.textContent = 'Connected to Backend';
                         console.log('Backend connection successful');
                         return true;
                     }
@@ -606,7 +611,8 @@
                     const data = await apiTest.json();
                     if (data.success) {
                         dot.classList.remove('disconnected');
-                        text.textContent = 'Connected';
+                        dot.classList.add('connected');
+                        text.textContent = 'Connected to Backend';
                         console.log('Backend connection successful via subjects endpoint');
                         return true;
                     }
@@ -616,6 +622,7 @@
             }
             
             dot.classList.add('disconnected');
+            dot.classList.remove('connected');
             text.textContent = 'Offline Mode';
             return false;
         }
