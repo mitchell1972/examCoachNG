@@ -1,226 +1,308 @@
 # ExamCoach Deployment Guide
 
-## Backend Deployment to Railway
+## 🚀 Quick Start Deployment Options
 
-### Prerequisites
-1. Create a Railway account at https://railway.app
-2. Install Railway CLI (optional): `npm install -g @railway/cli`
-
-### Step 1: Prepare the Backend
-
-The backend is already configured for deployment with:
-- `railway.json` configuration file
-- Environment variables support
-- Production-ready CORS settings
-- PostgreSQL database support
-
-### Step 2: Deploy to Railway
-
-#### Option A: Using Railway Dashboard (Recommended)
-
-1. Go to https://railway.app and sign in
-2. Click "New Project"
-3. Select "Deploy from GitHub repo"
-4. Connect your GitHub account and select your repository
-5. Railway will automatically detect the Node.js app in the `/server` directory
-6. Click "Add Service" → "Database" → "PostgreSQL" to add a database
-7. Railway will automatically set the `DATABASE_URL` environment variable
-
-#### Option B: Using Railway CLI
+### Option 1: Heroku (Easiest - Free Tier Available)
+**Best for**: Quick deployment, automatic SSL, easy scaling
 
 ```bash
-cd server
-railway login
-railway init
-railway add postgresql
-railway up
+# Make deployment script executable
+chmod +x deploy/heroku-deploy.sh
+
+# Run deployment
+./deploy/heroku-deploy.sh
 ```
 
-### Step 3: Configure Environment Variables
+**Cost**: Free tier available, ~$7-50/month for production
 
-In Railway dashboard, go to your project → Variables, and add:
+### Option 2: DigitalOcean App Platform (Recommended)
+**Best for**: Better performance, predictable pricing, automatic scaling
 
-```env
-NODE_ENV=production
-PORT=3000
-JWT_SECRET=<generate-a-secure-random-string>
-CORS_ORIGINS=https://your-frontend-domain.vercel.app,https://your-other-domain.com
-RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX_REQUESTS=100
-```
-
-Railway automatically provides:
-- `DATABASE_URL` (from PostgreSQL service)
-- `PORT` (Railway assigns this)
-
-### Step 4: Run Database Migrations
-
-After deployment, run the database setup:
-
-1. In Railway dashboard, go to your backend service
-2. Click on "Settings" → "Deploy" → "Run Command"
-3. Run: `npx tsx scripts/setup-database.ts`
-4. Then run: `npx tsx scripts/seed-questions.ts`
-
-Or using Railway CLI:
 ```bash
-railway run npx tsx scripts/setup-database.ts
-railway run npx tsx scripts/seed-questions.ts
+# Install DigitalOcean CLI
+brew install doctl  # macOS
+# or
+snap install doctl  # Linux
+
+# Authenticate
+doctl auth init
+
+# Deploy
+chmod +x deploy/digitalocean-deploy.sh
+./deploy/digitalocean-deploy.sh
 ```
 
-### Step 5: Get Your Backend URL
+**Cost**: ~$12-40/month
 
-Your backend will be available at:
-```
-https://your-app-name.railway.app
+### Option 3: AWS Elastic Beanstalk (Enterprise)
+**Best for**: Large scale, enterprise features, global reach
+
+```bash
+# Install AWS and EB CLI
+pip install awscli awsebcli
+
+# Configure AWS
+aws configure
+
+# Deploy
+chmod +x deploy/aws-deploy.sh
+./deploy/aws-deploy.sh
 ```
 
-Test it by visiting:
-- Health check: `https://your-app-name.railway.app/health`
-- API endpoint: `https://your-app-name.railway.app/api/questions/subjects`
+**Cost**: ~$20-100/month
+
+### Option 4: Docker (Self-Hosted)
+**Best for**: Full control, on-premise deployment
+
+```bash
+# Build and run with Docker Compose
+docker-compose -f docker-compose.production.yml up -d
+
+# Or deploy to any Docker host
+docker build -t examcoach .
+docker run -d -p 3000:3000 --env-file production.env examcoach
+```
 
 ---
 
-## Web App Deployment to Vercel
+## 📋 Pre-Deployment Checklist
 
-### Step 1: Prepare the Web App
+### 1. Environment Variables
+Update `production.env` with real values:
+- [ ] Generate strong JWT_SECRET: `openssl rand -hex 32`
+- [ ] Generate strong SESSION_SECRET: `openssl rand -hex 32`  
+- [ ] Set secure ADMIN_PASS: `openssl rand -base64 20`
+- [ ] Update DATABASE_URL with production database
+- [ ] Set CORS_ORIGINS to your domain
+- [ ] Configure email settings (SMTP)
 
-1. Update all API URLs in your HTML files to point to your Railway backend:
+### 2. Database Setup
+```bash
+# Run migrations on production database
+psql $DATABASE_URL < server/migrations/run-all-migrations.sql
 
-```javascript
-// In phone_app.html and other HTML files, update:
-const API_BASE = 'https://your-app-name.railway.app';
+# Seed initial data (optional)
+cd server && npm run db:seed
 ```
 
-### Step 2: Create Vercel Configuration
+### 3. Google Play Configuration
+- [ ] Create service account in Google Cloud Console
+- [ ] Download service account JSON key
+- [ ] Upload to secure location on server
+- [ ] Update GOOGLE_SERVICE_ACCOUNT_KEY_PATH
 
-Create `vercel.json` in the root directory:
+### 4. Domain & SSL
+- [ ] Register domain (e.g., examcoachng.com)
+- [ ] Configure DNS to point to your server
+- [ ] Set up SSL certificate (automatic on most platforms)
 
-```json
-{
-  "buildCommand": "echo 'No build required'",
-  "outputDirectory": ".",
-  "framework": null,
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/$1" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
-      ]
+---
+
+## 🔧 Manual Deployment Steps
+
+### Step 1: Prepare Server
+```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install Node.js 20
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# Install PostgreSQL
+sudo apt install -y postgresql postgresql-contrib
+
+# Install Redis
+sudo apt install -y redis-server
+
+# Install PM2 for process management
+sudo npm install -g pm2
+```
+
+### Step 2: Clone Repository
+```bash
+git clone https://github.com/mitchell1972/examCoachNG.git
+cd examCoachNG
+```
+
+### Step 3: Setup Backend
+```bash
+cd server
+npm install
+npm run build
+
+# Copy production environment
+cp ../production.env .env
+
+# Run migrations
+psql $DATABASE_URL < migrations/run-all-migrations.sql
+```
+
+### Step 4: Start Services
+```bash
+# Start with PM2
+pm2 start dist/app.js --name examcoach
+pm2 save
+pm2 startup
+
+# Or use systemd service
+sudo nano /etc/systemd/system/examcoach.service
+```
+
+### Step 5: Setup Nginx (Optional)
+```bash
+sudo apt install -y nginx
+
+# Configure reverse proxy
+sudo nano /etc/nginx/sites-available/examcoach
+```
+
+```nginx
+server {
+    listen 80;
+    server_name examcoachng.com www.examcoachng.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
-  ]
 }
 ```
 
-### Step 3: Deploy to Vercel
-
-#### Option A: Using Vercel Dashboard
-
-1. Go to https://vercel.com and sign in
-2. Click "Add New Project"
-3. Import your Git repository
-4. Configure:
-   - Framework Preset: Other
-   - Root Directory: ./
-   - Build Command: (leave empty)
-   - Output Directory: ./
-5. Click "Deploy"
-
-#### Option B: Using Vercel CLI
-
 ```bash
-npm install -g vercel
-vercel
-```
+# Enable site
+sudo ln -s /etc/nginx/sites-available/examcoach /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
 
-### Step 4: Update CORS in Backend
-
-Add your Vercel domain to the CORS_ORIGINS environment variable in Railway:
-
-```env
-CORS_ORIGINS=https://your-app.vercel.app
+# Setup SSL with Let's Encrypt
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d examcoachng.com -d www.examcoachng.com
 ```
 
 ---
 
-## Mobile App Deployment (Flutter)
+## 📱 Mobile App Deployment
 
-### Prerequisites
-- Fix compilation errors in `/app` directory
-- Android SDK installed
-- Flutter configured
-
-### Build APK
-
+### Android (Google Play Store)
 ```bash
 cd app
-flutter build apk --release \
-  --dart-define=API_BASE_URL=https://your-app-name.railway.app \
-  --dart-define=FLAVOR=prod
+flutter build appbundle --release
+
+# Upload app/build/app/outputs/bundle/release/app-release.aab to Play Console
 ```
 
-The APK will be available at:
+### iOS (App Store)
+```bash
+cd app
+flutter build ios --release
+
+# Open in Xcode and archive for App Store
+open ios/Runner.xcworkspace
 ```
-app/build/app/outputs/flutter-apk/app-release.apk
+
+---
+
+## 🔍 Post-Deployment Verification
+
+### 1. Health Check
+```bash
+curl https://your-domain.com/health
+```
+
+### 2. Test Authentication
+```bash
+# Register user
+curl -X POST https://your-domain.com/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"Test123!","fullName":"Test User"}'
+
+# Login
+curl -X POST https://your-domain.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"Test123!"}'
+```
+
+### 3. Monitor Logs
+```bash
+# Heroku
+heroku logs --tail
+
+# DigitalOcean
+doctl apps logs <app-id>
+
+# PM2
+pm2 logs examcoach
+
+# Docker
+docker logs examcoach-backend
 ```
 
 ---
 
-## Post-Deployment Checklist
+## 🚨 Troubleshooting
 
-- [ ] Backend health check working
-- [ ] Database connected and seeded
-- [ ] CORS configured for frontend domains
-- [ ] Frontend API URLs updated
-- [ ] SSL certificates active (automatic on Railway/Vercel)
-- [ ] Environment variables set correctly
-- [ ] Rate limiting configured
-- [ ] Error logging working
+### Database Connection Issues
+```bash
+# Test connection
+psql $DATABASE_URL -c "SELECT 1"
 
----
+# Check firewall
+sudo ufw status
+```
 
-## Monitoring
+### Port Already in Use
+```bash
+# Find process using port 3000
+lsof -i :3000
 
-### Railway
-- View logs: Railway Dashboard → Your Service → Logs
-- Monitor metrics: Railway Dashboard → Your Service → Metrics
+# Kill process
+kill -9 <PID>
+```
 
-### Vercel
-- View logs: Vercel Dashboard → Your Project → Functions → Logs
-- Analytics: Vercel Dashboard → Your Project → Analytics
+### SSL Certificate Issues
+```bash
+# Renew certificate
+sudo certbot renew
 
----
-
-## Troubleshooting
-
-### Backend Issues
-1. **Database connection fails**: Check DATABASE_URL in Railway variables
-2. **CORS errors**: Add frontend domain to CORS_ORIGINS
-3. **502 errors**: Check Railway logs for crash reports
-
-### Frontend Issues
-1. **API calls fail**: Verify API_BASE URL is correct
-2. **CORS blocked**: Ensure backend CORS_ORIGINS includes your domain
+# Test SSL
+curl -I https://your-domain.com
+```
 
 ---
 
-## Support
+## 📊 Monitoring & Maintenance
 
-For deployment issues:
-- Railway: https://docs.railway.app
-- Vercel: https://vercel.com/docs
-- PostgreSQL: https://www.postgresql.org/docs/
+### Setup Monitoring
+- [ ] Configure Sentry for error tracking
+- [ ] Set up uptime monitoring (UptimeRobot, Pingdom)
+- [ ] Enable application metrics (New Relic, DataDog)
+- [ ] Configure log aggregation (LogDNA, Papertrail)
+
+### Regular Maintenance
+- [ ] Weekly: Check logs for errors
+- [ ] Monthly: Update dependencies
+- [ ] Quarterly: Security audit
+- [ ] Yearly: SSL certificate renewal
+
+---
+
+## 🆘 Support
+
+If you encounter issues:
+1. Check logs for error messages
+2. Verify environment variables are set correctly
+3. Ensure database migrations ran successfully
+4. Check network/firewall settings
+5. Contact support with error details
+
+---
+
+**Ready to deploy!** Choose your platform above and follow the steps. The application is production-ready and configured for secure deployment.

@@ -114,3 +114,9 @@ flutter/bin/cache/
 # Home directories
 .config/
 .local/
+# Android signing
+*.keystore
+*.jks
+key.properties
+**/android/key.properties
+**/android/app/*.keystore
